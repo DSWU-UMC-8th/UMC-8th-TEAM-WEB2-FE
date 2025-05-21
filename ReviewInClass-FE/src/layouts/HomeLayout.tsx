@@ -7,7 +7,9 @@ const HomeLayout = () => {
     <>
       <Navbar />
       <FloatingBtn />
-      <Outlet />
+      <main className="pt-[93px]">
+        <Outlet />
+      </main>
     </>
   );
 };
