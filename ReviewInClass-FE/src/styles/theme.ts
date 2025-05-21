@@ -20,6 +20,7 @@ const palette = {
   white: "#ffffff",
   background: "#F5F5F7",
   nav: "#444750",
+  button: "#EBFFCF",
 };
 
 export default palette;
