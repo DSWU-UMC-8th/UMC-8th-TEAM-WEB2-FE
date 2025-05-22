@@ -8,26 +8,7 @@ import starEmpty from "../../assets/star/icon-star-empty.svg";
 import starFull from "../../assets/star/icon-star-full.svg";
 import starHalf from "../../assets/star/icon-star-half.svg";
 import { ReviewCardProps } from "../../types/review.ts";
-
-// 별점 렌더링 함수
-const renderStars = (rating: number) => {
-  const stars = [];
-  const full = Math.floor(rating);
-  const half = rating % 1 >= 0.5;
-
-  for (let i = 0; i < full; i++) {
-    stars.push(<img key={`full-${i}`} src={starFull} alt="별" className="w-4 h-4" />);
-  }
-  if (half) {
-    stars.push(<img key="half" src={starHalf} alt="반 별" className="w-4 h-4" />);
-  }
-  while (stars.length < 5) {
-    stars.push(
-      <img key={`empty-${stars.length}`} src={starEmpty} alt="빈 별" className="w-4 h-4" />
-    );
-  }
-  return stars;
-};
+import Star from "./Star";
 
 const ReviewCard = ({
   rating,
@@ -62,7 +43,7 @@ const ReviewCard = ({
             className="w-8 h-8 rounded-full object-cover"
           />
           <div className="flex items-center gap-1 text-[14px]">
-            {renderStars(parseFloat(rating))}
+            <Star star={parseFloat(rating)} width={16} gap={4} />
           </div>
         </div>
         <span className="text-gray-500">{createdAt}</span>
