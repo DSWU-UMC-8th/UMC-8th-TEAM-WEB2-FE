@@ -30,15 +30,15 @@ const renderStars = (rating: number) => {
 };
 
 const ReviewCard = ({
-  rating, // 별점
-  createdAt, // 작성 시간
-  studyPeriod,  // 공부 기간
-  likeCount,  // 좋아요 개수
-  content, // 리뷰 내용
-  imageUrl,  // 리뷰에 들어갈 사진
-  profileImage,  // 프로필 사진
-  category,  //카테고리
-  level,  //난이도
+  rating,
+  createdAt,
+  studyPeriod,
+  likeCount,
+  content,
+  imageUrl,
+  profileImage,
+  category,
+  level,
   teacher,
 }: ReviewCardProps) => {
   const [likes, setLikes] = useState(likeCount);
