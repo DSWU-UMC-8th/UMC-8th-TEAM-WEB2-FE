@@ -19,7 +19,7 @@ const FloatingBtn = () => {
   };
 
   return (
-    <div className="flex flex-col gap-[15px] fixed right-[20px] bottom-[20px]">
+    <div className="flex flex-col gap-[15px] fixed right-[20px] bottom-[20px] z-[1000]">
       <div
         onClick={handleCilckMenu}
         className="w-[52px] h-[52px] flex rounded-[50%] flex items-center justify-center cursor-pointer"
