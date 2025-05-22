@@ -51,7 +51,7 @@ const Banner = ({ lectures }: BannerProps) => {
               }}
             ></div>
 
-            <div className="absolute bottom-15 left-15 flex flex-col gap-[15px]">
+            <div className="absolute bottom-10 left-15 flex flex-col gap-[15px]">
               <p className="font-semibold text-[45px] leading-[145%] tracking-0 text-white">{lecture.title}</p>
               <div className="flex items-center gap-[19.57px]">
                 <p className="font-medium text-[30px] leading-[100%] tracking-0 text-white">{lecture.platform}</p>
@@ -70,7 +70,7 @@ const Banner = ({ lectures }: BannerProps) => {
                 ))}
               </div>
 
-              <Star star={lecture.likes} />
+              <Star star={lecture.likes} width={31.62} gap={11} />
             </div>
 
             <div className="absolute bottom-5 right-5">
