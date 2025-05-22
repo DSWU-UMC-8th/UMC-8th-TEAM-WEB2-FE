@@ -1,5 +1,13 @@
+import Navbar from "../components/common/Navbar";
+import ClassInfo from "../components/CreateReview/ClassInfo/ClassInfo";
+
 const CreateReview = () => {
-  return <div>리뷰 작성 페이지</div>;
+  return (
+    <div>
+      <Navbar />
+      <ClassInfo />
+    </div>
+  );
 };
 
 export default CreateReview;
