@@ -19,6 +19,9 @@ const palette = {
   },
   white: "#ffffff",
   background: "#F5F5F7",
+  "neutral-bg": "#F7F8F9",
+  nav: "#444750",
+  button: "#EBFFCF",
 };
 
 export default palette;
