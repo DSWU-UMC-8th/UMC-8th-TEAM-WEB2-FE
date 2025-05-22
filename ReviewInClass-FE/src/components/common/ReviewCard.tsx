@@ -4,10 +4,7 @@ import logoIcon from "../../assets/icon-logo.svg";
 import thumbsUpColor from "../../assets/thumbs/icon-thumbs-color-up.svg";
 import thumbsUp from "../../assets/thumbs/icon-thumbs-up.svg";
 import thumbsDown from "../../assets/thumbs/icon-thumbs-down.svg";
-import starEmpty from "../../assets/star/icon-star-empty.svg";
-import starFull from "../../assets/star/icon-star-full.svg";
-import starHalf from "../../assets/star/icon-star-half.svg";
-import { ReviewCardProps } from "../../types/review.ts";
+import type { ReviewCardProps } from "../../types/review.ts";
 import Star from "./Star";
 
 const ReviewCard = ({
