@@ -7,6 +7,7 @@ import thumbsDown from "../../assets/thumbs/icon-thumbs-down.svg";
 import starEmpty from "../../assets/star/icon-star-empty.svg";
 import starFull from "../../assets/star/icon-star-full.svg";
 import starHalf from "../../assets/star/icon-star-half.svg";
+import { ReviewCardProps } from "../../types/review.ts";
 
 // 별점 렌더링 함수
 const renderStars = (rating: number) => {
@@ -38,17 +39,8 @@ const ReviewCard = ({
   profileImage,  // 프로필 사진
   category,  //카테고리
   level,  //난이도
-}: {
-  rating: string;
-  createdAt: string;
-  studyPeriod: string;
-  likeCount: number;
-  content: string;
-  imageUrl?: string | null;
-  profileImage?: string | null;
-  category?: string;
-  level?: string;
-}) => {
+  teacher,
+}: ReviewCardProps) => {
   const [likes, setLikes] = useState(likeCount);
 
   const handleLike = () => {
