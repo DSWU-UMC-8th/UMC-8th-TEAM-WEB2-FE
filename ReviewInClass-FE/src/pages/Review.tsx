@@ -17,6 +17,9 @@ const Review = () => {
     period: "",
   });
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const reviewsPerPage = 5;
+
   const toggleOrder = () => {
     setOrder((prev) => (prev === "desc" ? "asc" : "desc"));
   };
@@ -46,11 +49,9 @@ const Review = () => {
 
   // 필터링
   const filteredReviews = sortedReviews.filter((review) => {
-    const matchCategory =
-      !filters.category || review.category === filters.category;
+    const matchCategory = !filters.category || review.category === filters.category;
 
-    const matchLevel =
-      !filters.level || review.level === filters.level;
+    const matchLevel = !filters.level || review.level === filters.level;
 
     const reviewPeriodRank = periodPriority[review.studyPeriod] ?? Infinity;
     const filterPeriodRank = periodPriority[filters.period] ?? Infinity;
@@ -60,6 +61,12 @@ const Review = () => {
 
     return matchCategory && matchLevel && matchPeriod;
   });
+
+  const totalPages = Math.ceil(filteredReviews.length / reviewsPerPage);
+  const paginatedReviews = filteredReviews.slice(
+    (currentPage - 1) * reviewsPerPage,
+    currentPage * reviewsPerPage
+  );
 
   return (
     <div className="px-8 py-6">
@@ -82,9 +89,57 @@ const Review = () => {
       </div>
 
       <div className="space-y-4">
-        {filteredReviews.map((review) => (
+        {paginatedReviews.map((review) => (
           <ReviewCard key={review.id} {...review} />
         ))}
+      </div>
+
+      {/* Pagination */}
+      <div className="flex justify-center mt-8 gap-2">
+        {/* 이전 버튼 */}
+        <button
+          disabled={currentPage === 1}
+          onClick={() => setCurrentPage((prev) => prev - 1)}
+          style={{
+            backgroundColor: currentPage === 1 ? "#E9E9E9" : "#CAE3A5", // gray200 or primaryLight
+            color: currentPage === 1 ? "#B5B5B5" : "#6FA235",            // gray500 or primaryDark
+            cursor: currentPage === 1 ? "not-allowed" : "pointer",
+          }}
+          className="px-3 py-1 rounded border"
+        >
+          &lt;
+        </button>
+
+        {/* 페이지 번호 */}
+        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+          <button
+            key={page}
+            onClick={() => setCurrentPage(page)}
+            style={{
+              backgroundColor: "#ffffff",
+              border: page === currentPage ? "1p x solid #6FA235" : "1px solid #CAE3A5",
+              color: "#6FA235",
+              fontWeight: page === currentPage ? "bold" : "normal",
+            }}
+            className="px-3 py-1 rounded"
+          >
+            {page}
+          </button>
+        ))}
+
+        {/* 다음 버튼 */}
+        <button
+          disabled={currentPage === totalPages}
+          onClick={() => setCurrentPage((prev) => prev + 1)}
+          style={{
+            backgroundColor: currentPage === totalPages ? "#E9E9E9" : "#CAE3A5",
+            color: currentPage === totalPages ? "#B5B5B5" : "#6FA235",
+            cursor: currentPage === totalPages ? "not-allowed" : "pointer",
+          }}
+          className="px-3 py-1 rounded border"
+        >
+          &gt;
+        </button>
       </div>
     </div>
   );
