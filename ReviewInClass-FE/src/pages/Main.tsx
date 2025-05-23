@@ -17,11 +17,20 @@ const Main = () => {
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     .slice(0, 5);
 
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
+
   const handlePopularClick = () => {
+    scrollToTop();
     navigate("review?sort=popular");
   };
 
   const handleLatestClick = () => {
+    scrollToTop();
     navigate("review?sort=latest");
   };
 
