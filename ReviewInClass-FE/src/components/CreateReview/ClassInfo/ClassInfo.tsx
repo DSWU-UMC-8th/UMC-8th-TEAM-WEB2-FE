@@ -1,10 +1,14 @@
 import palette from "../../../styles/theme"; 
 import ic_pic from "../../../assets/icon-pic-select.svg"
 import logo from "../../../assets/icon-logo.svg"
+import ic_search from "../../../assets/navbar/icon-navbar-search.svg"
+import ic_x from "../../../assets/x-icon.svg";
 import CustomInput from "./InputComponent";
 import SearchButton from "./SearchBtn";
+import ImageUploadBox from "./ImageUpload";
 
 const ClassInfo = () => {
+
     return (
         <div className="flex flex-col justify-center items-center py-8">
             <div className="w-full max-w-3xl rounded-2xl py-10">
@@ -37,9 +41,27 @@ const ClassInfo = () => {
                         <div className="flex gap-[25px]">
                             <CustomInput
                                 className="rounded-[55px]"
+                                leftIcon={<img src={ic_search} alt="검색아이콘" className="w-full h-full object-contain"/>}
                                 placeholder="강의명 (강의 상세 페이지의 강의를 토대로 자동 입력)"
                             />
                             <SearchButton />
+                        </div>
+
+                        <div className="flex gap-[15px] mt-[19px] w-full">
+                            <div className="flex gap-[5px] items-center justify-center">
+                                <span
+                                    className="flex items-center rounded-full px-3 py-1 text-[15.3px] font-bold"
+                                    style={{
+                                        backgroundColor: palette.primary.primaryDark,
+                                        color: palette.white,
+                                    }}
+                                >
+                                선택한 강의명
+                                    <span className="size-[20px] flex items-center justify-center ml-1">
+                                        <img src={ic_x} alt="x" className="w-full h-full object-contain"/>
+                                    </span>
+                                </span>
+                            </div>
                         </div>
                     </div>
 
@@ -53,8 +75,27 @@ const ClassInfo = () => {
                             style={{ borderColor: palette.gray.gray300 }}
                             placeholder="강사명을 입력해 주세요. (강의명 검색 시 자동 입력됩니다.)"
                         />
-                        <div className="text-right text-[15px] mt-1" style={{ color: palette.gray.gray700 }}>
-                            (10자 이내)
+                        <div className="flex justify-around">
+                            <div className="flex gap-[15px] mt-[19px] w-full">
+                                <div className="flex gap-[5px] items-center justify-center">
+                                    <span
+                                        className="flex items-center rounded-full px-3 py-1 text-[15.3px] font-bold"
+                                        style={{
+                                            backgroundColor: palette.primary.primaryDark,
+                                            color: palette.white,
+                                        }}
+                                    >
+                                        홍길동
+                                        <span className="size-[20px] flex items-center justify-center ml-1">
+                                            <img src={ic_x} alt="x" className="w-full h-full object-contain"/>
+                                        </span>
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <span className="text-right text-[15px] mt-[19px] shrink-0" style={{ color: palette.gray.gray700 }}>
+                                (10자 이내)
+                            </span>
                         </div>
                     </div>
                     
@@ -66,22 +107,29 @@ const ClassInfo = () => {
                         <div className="flex gap-[25px]">
                             <CustomInput
                                 className="rounded-[55px]"
+                                leftIcon={<img src={ic_search} alt="검색아이콘" className="w-full h-full object-contain"/>}
                                 placeholder="플랫폼을 검색해 주세요. (강의명 검색 시 자동 선택됩니다.)"
                             />
                             <SearchButton />
                         </div>
 
                         {/* 태그 리스트 */}
-                        <div className="flex gap-[15px] mt-[19px]">
-                            <span
-                                className="rounded-full px-3 py-1 text-[15.3px] font-medium"
-                                style={{
-                                    backgroundColor: palette.primary.primaryDark,
-                                    color: palette.white,
-                                }}
-                            >
+                        <div className="flex gap-[15px] mt-[19px] w-full">
+                            <div className="flex gap-[5px] items-center justify-center">
+                                <span
+                                    className="flex items-center rounded-full px-3 py-1 text-[15.3px] font-bold"
+                                    style={{
+                                        backgroundColor: palette.primary.primaryDark,
+                                        color: palette.white,
+                                    }}
+                                >
                                 뮤소스
-                            </span>
+                                    <span className="size-[20px] flex items-center justify-center ml-1">
+                                        <img src={ic_x} alt="x" className="w-full h-full object-contain"/>
+                                    </span>
+                                </span>
+                            </div>
+
                         </div>
                     </div>
                 </section>
@@ -100,19 +148,7 @@ const ClassInfo = () => {
                     <p className="font-medium text-[25px] mb-[39px]" style={{ color: palette.gray.gray900 }}>
                         강의 사진 등록하기
                     </p>
-                    <div
-                        className="border-dashed border-2 rounded-xl flex flex-col items-center justify-center h-36 w-36 transition-colors cursor-pointer"
-                        style={{
-                            borderColor: palette.primary.primary,
-                        }}
-                    >
-                        <span className="text-3xl mb-2" style={{ color: palette.primary.primaryDark }}>
-                            <img src={ic_pic} alt="검색" className="w-full h-full object-contain" />
-                        </span>
-                        <span className="text-sm" style={{ color: palette.gray.gray500 }}>
-                            사진 추가
-                        </span>
-                    </div>
+                    <ImageUploadBox defaultIcon={ic_pic} />
                 </section>
             </div>
         </div>

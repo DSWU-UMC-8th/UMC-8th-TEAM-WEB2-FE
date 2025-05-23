@@ -1,0 +1,29 @@
+.quill {
+    display: flex;
+    flex-direction: column;
+    height: 260px;
+    background-color: white;
+}
+
+.ql-container {
+    flex: 1;
+    background-color: white;
+}
+
+.ql-editor {
+    flex: 1;
+    width: 100%;
+    overflow-y: auto;
+}
+
+.ql-blank::before {
+    color: #6D6D6D;
+    font-size: 16px;
+    font-style: normal !important;
+}
+
+.ql-blank::after {
+    color: black;
+    font-size: 16px;
+    font-style: normal !important;
+}
