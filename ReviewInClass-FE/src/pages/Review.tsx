@@ -4,7 +4,8 @@ import ReviewCard from "../components/common/ReviewCard";
 import { dummyReviews } from "../data/dummyReviews";
 import ReviewFilterBar from "../components/ReviewFilterBar";
 import type { Filters } from "../components/ReviewFilterBar";
-
+import MiniBanner from "../components/common/Banner/MiniBanner";
+import { LECTURE } from "../data/banner";
 
 const Review = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -62,6 +63,7 @@ const Review = () => {
 
   return (
     <div className="px-8 py-6">
+      <MiniBanner lectures={LECTURE.slice(0, 4)} />
       <ReviewFilterBar onSearch={setFilters} />
 
       <div className="flex justify-end mb-4">
