@@ -40,7 +40,7 @@ const Navbar = () => {
 
   return (
     <nav
-      className="h-[93px] pt-[16px] pr-[24px] pb-[16px] pl-[24px] flex items-center justify-between fixed top-0 left-0 right-0"
+      className="h-[93px] pt-[16px] pr-[24px] pb-[16px] pl-[24px] flex items-center justify-between fixed top-0 left-0 right-0 z-1000"
       style={{ background: palette["neutral-bg"] }}
     >
       <div className="flex gap-[24px] items-center">
