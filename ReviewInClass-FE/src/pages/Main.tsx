@@ -57,7 +57,7 @@ const Main = () => {
         <MainReview reviews={REVIEWS} />
       </div>
 
-      <div className="pl-[78px] pr-[78px] mt-[80px]">
+      <div className="pl-[78px] pr-[78px] mt-[80px] mb-[80px]">
         <div className="flex justify-between">
           <h3 className="font-medium text-[25px] leading-[100%] tracking-[0%]" style={{ color: palette.gray.gray900 }}>
             최신 리뷰
