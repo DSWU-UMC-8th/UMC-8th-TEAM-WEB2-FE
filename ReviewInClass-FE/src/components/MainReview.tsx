@@ -31,16 +31,19 @@ const MainReview = ({ reviews }: MainReviewProps) => {
               className="flex flex-col gap-[13px] p-[32px] min-w-[376px] w-full h-[232px] rounded-[24px] rounded-bl-[4px]"
               style={{ background: palette.white }}
             >
-              <div className="font-semibold text-[20px] leading-[33.66px] tracking-[-1%]">{review.title}</div>
+              <div className="font-semibold text-[20px] leading-[33.66px] tracking-[-0.01em]">{review.title}</div>
               <Star star={review.rating} width={25.4} gap={8.89} />
-              <div
-                className="font-semibold text-[15px] leading-[22px] tracking-[-1%]"
-                style={{ color: palette.gray.gray700 }}
+
+              <p
+                className="font-semibold text-[15px] leading-[22px] tracking-[-0.01em]"
+                style={{
+                  color: palette.gray.gray700,
+                }}
               >
                 {review.content}
-              </div>
+              </p>
 
-              <div className="flex gap-[12px]">
+              <div className="flex gap-[12px] items-center">
                 <div className="w-[48px] h-[48px] rounded-[50%] overflow-hidden">
                   <img src={Profile} alt="강사사진" className="w-full h-full object-cover" />
                 </div>
