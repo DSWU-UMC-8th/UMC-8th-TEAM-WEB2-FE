@@ -8,6 +8,7 @@ const FloatingBtn = () => {
   const navigate = useNavigate();
 
   const handleCilckMenu = () => {
+    scrollToTop();
     navigate("/create");
   };
 
