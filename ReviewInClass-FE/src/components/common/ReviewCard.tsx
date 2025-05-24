@@ -4,51 +4,21 @@ import logoIcon from "../../assets/icon-logo.svg";
 import thumbsUpColor from "../../assets/thumbs/icon-thumbs-color-up.svg";
 import thumbsUp from "../../assets/thumbs/icon-thumbs-up.svg";
 import thumbsDown from "../../assets/thumbs/icon-thumbs-down.svg";
-import starEmpty from "../../assets/star/icon-star-empty.svg";
-import starFull from "../../assets/star/icon-star-full.svg";
-import starHalf from "../../assets/star/icon-star-half.svg";
-
-// 별점 렌더링 함수
-const renderStars = (rating: number) => {
-  const stars = [];
-  const full = Math.floor(rating);
-  const half = rating % 1 >= 0.5;
-
-  for (let i = 0; i < full; i++) {
-    stars.push(<img key={`full-${i}`} src={starFull} alt="별" className="w-4 h-4" />);
-  }
-  if (half) {
-    stars.push(<img key="half" src={starHalf} alt="반 별" className="w-4 h-4" />);
-  }
-  while (stars.length < 5) {
-    stars.push(
-      <img key={`empty-${stars.length}`} src={starEmpty} alt="빈 별" className="w-4 h-4" />
-    );
-  }
-  return stars;
-};
+import type { ReviewCardProps } from "../../types/review.ts";
+import Star from "./Star";
 
 const ReviewCard = ({
-  rating, // 별점
-  createdAt, // 작성 시간
-  studyPeriod,  // 공부 기간
-  likeCount,  // 좋아요 개수
-  content, // 리뷰 내용
-  imageUrl,  // 리뷰에 들어갈 사진
-  profileImage,  // 프로필 사진
-  category,  //카테고리
-  level,  //난이도
-}: {
-  rating: string;
-  createdAt: string;
-  studyPeriod: string;
-  likeCount: number;
-  content: string;
-  imageUrl?: string | null;
-  profileImage?: string | null;
-  category?: string;
-  level?: string;
-}) => {
+  rating,
+  createdAt,
+  studyPeriod,
+  likeCount,
+  content,
+  imageUrl,
+  profileImage,
+  category,
+  level,
+  teacher,
+}: ReviewCardProps) => {
   const [likes, setLikes] = useState(likeCount);
 
   const handleLike = () => {
@@ -70,7 +40,7 @@ const ReviewCard = ({
             className="w-8 h-8 rounded-full object-cover"
           />
           <div className="flex items-center gap-1 text-[14px]">
-            {renderStars(parseFloat(rating))}
+            <Star star={parseFloat(rating)} width={16} gap={4} />
           </div>
         </div>
         <span className="text-gray-500">{createdAt}</span>

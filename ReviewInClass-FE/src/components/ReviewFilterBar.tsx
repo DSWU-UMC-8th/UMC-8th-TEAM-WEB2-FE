@@ -17,7 +17,7 @@ const ReviewFilterBar = ({ onSearch }: { onSearch: (filters: Filters) => void })
   }
 
   return (
-    <div className="flex items-center justify-between px-8 py-4">
+    <div className="flex items-center justify-between py-4">
       <div className="flex gap-4">
         <select
           value={category}
