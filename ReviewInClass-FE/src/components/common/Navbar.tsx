@@ -23,6 +23,7 @@ const Navbar = () => {
   };
 
   const handleNavigate = (path: string, setClicked: boolean, sort?: string) => {
+    scrollToTop();
     if (sort) {
       navigate(`${path}?sort=${sort}`);
     } else {
@@ -36,6 +37,13 @@ const Navbar = () => {
 
   const isActive = (path: string) => {
     return clickedPath === path;
+  };
+
+  const scrollToTop = () => {
+    window.scroll({
+      top: 0,
+      behavior: "smooth",
+    });
   };
 
   return (
