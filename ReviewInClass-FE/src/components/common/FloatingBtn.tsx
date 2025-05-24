@@ -22,7 +22,7 @@ const FloatingBtn = () => {
     <div className="flex flex-col gap-[15px] fixed right-[20px] bottom-[20px] z-[1000]">
       <div
         onClick={handleCilckMenu}
-        className="w-[52px] h-[52px] flex rounded-[50%] flex items-center justify-center cursor-pointer"
+        className="w-[52px] h-[52px] flex rounded-[50%] items-center justify-center cursor-pointer"
         style={{ backgroundColor: palette.button, boxShadow: "0px 0px 12.32px 0px #00000026" }}
       >
         <div className="w-[30.29px] h-[30.29px]">
@@ -32,7 +32,7 @@ const FloatingBtn = () => {
 
       <div
         onClick={scrollToTop}
-        className="w-[52px] h-[52px] flex rounded-[50%] flex items-center justify-center cursor-pointer"
+        className="w-[52px] h-[52px] flex rounded-[50%] items-center justify-center cursor-pointer"
         style={{ backgroundColor: palette.white, boxShadow: "0px 0px 12.32px 0px #00000026" }}
       >
         <div className="w-[13.55x] h-[15.55px]">
