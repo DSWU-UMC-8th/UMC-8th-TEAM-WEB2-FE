@@ -1,0 +1,30 @@
+/* 슬라이더 트랙(바) 스타일 */
+input[type="range"] {
+    appearance: none;
+    -webkit-appearance: none; 
+    -moz-appearance: none;
+    height: 10px;
+    background-color: #B5B5B5; 
+    border-radius: 10px;
+    outline: none;
+}
+
+/* 트랙(바) 색상 - Webkit (Chrome, Safari) */
+input[type="range"]::-webkit-slider-runnable-track {
+    height: 8px;
+    background: transparent; 
+    border-radius: 10px;
+    margin-top: -9px;
+}
+
+/* 슬라이더 손잡이(thumb) - 크롬, 사파리 */
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;       
+    height: 18px;       
+    border-radius: 50%; 
+    background: #B4D780; 
+    cursor: pointer;
+    border: none;
+}
