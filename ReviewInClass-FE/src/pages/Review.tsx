@@ -77,28 +77,24 @@ const Review = () => {
     currentPage * reviewsPerPage
   );
 
-  return (
-    <div className="px-8 py-6">
-      {!search && <MiniBanner lectures={LECTURE.slice(0, 4)} />}
-      {search && (
-        <p className="text-center font-semibold text-[25px] leading-[33.66px] tracking-[-0.01em]">
-          <span style={{ color: palette.secondary.secondaryDark }}>{search}</span>에 대한{" "}
-          {searchedReview.length}개의 검색 결과가 있습니다.
-        </p>
-      )}
-      <ReviewFilterBar onSearch={setFilters} />
+return (
+  <div className="px-8 py-6">
+    {/* 검색어 유무에 따라 배너 or 메시지 */}
+    {!search && <MiniBanner lectures={LECTURE.slice(0, 4)} />}
+    {search && (
+      <p className="text-center font-semibold text-[25px] leading-[33.66px] tracking-[-0.01em]">
+        <span style={{ color: palette.secondary.secondaryDark }}>{search}</span>에 대한{" "}
+        {searchedReview.length}개의 검색 결과가 있습니다.
+      </p>
+    )}
 
-      <div className="flex justify-end mb-4">
-        <button onClick={toggleOrder} className="text-sm text-gray-700 flex items-center">
-          {sortType === "latest"
-            ? order === "desc"
-              ? "최신순 🔽"
-              : "오래된순 🔼"
-            : order === "desc"
-            ? "인기순 🔽"
-            : "인기 낮은 순 🔼"}
-        </button>
-      </div>
+    {/* 정렬 기능 포함된 필터바 */}
+    <ReviewFilterBar
+      onSearch={setFilters}
+      sortType={sortType}
+      order={order}
+      onToggleOrder={toggleOrder}
+    />
 
       <div className="space-y-4">
         {paginatedReviews.map((review) => (
