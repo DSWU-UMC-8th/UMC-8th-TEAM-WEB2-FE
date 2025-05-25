@@ -79,7 +79,7 @@ const Main = () => {
 
         <div className="mt-[20px] flex flex-col gap-[30px]">
           {latestReviews.map((review) => {
-            return <ReviewCard {...review} />;
+            return <ReviewCard {...review} key={review.id} />;
           })}
         </div>
       </div>
