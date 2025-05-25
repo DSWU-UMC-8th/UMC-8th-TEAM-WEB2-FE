@@ -1,3 +1,4 @@
+import { useState } from "react";
 import palette from "../../../styles/theme"; 
 import ic_pic from "../../../assets/icon-pic-select.svg"
 import logo from "../../../assets/icon-logo.svg"
@@ -6,8 +7,58 @@ import ic_x from "../../../assets/x-icon.svg";
 import CustomInput from "./InputComponent";
 import SearchButton from "./SearchBtn";
 import ImageUploadBox from "./ImageUpload";
+import SearchDropdown from "./SearchDropdown";
+
+
+const LECTURE_RESULTS = [
+  {
+    title: "협업 툴 완전 정복! Notion, Figma 사용법 초급 강의",
+    instructor: "홍길동",
+    platform: "인프런",
+  },
+  {
+    title: "협업 시 사용할 툴의 꿀팁 강의",
+    instructor: "김철수",
+    platform: "패스트캠퍼스",
+  },
+    {
+    title: "협업 시 사용할 툴의 꿀팁 강의",
+    instructor: "김철수",
+    platform: "패스트캠퍼스",
+  },
+    {
+    title: "협업 시 사용할 툴의 꿀팁 강의",
+    instructor: "김철수",
+    platform: "패스트캠퍼스",
+  },
+    {
+    title: "협업 시 사용할 툴의 꿀팁 강의",
+    instructor: "김철수",
+    platform: "패스트캠퍼스",
+  },
+    {
+    title: "협업 시 사용할 툴의 꿀팁 강의",
+    instructor: "김철수",
+    platform: "패스트캠퍼스",
+  },
+    {
+    title: "협업 시 사용할 툴의 꿀팁 강의",
+    instructor: "김철수",
+    platform: "패스트캠퍼스",
+  },
+];
 
 const ClassInfo = () => {
+    const [query, setQuery] = useState('');
+    const [isOpen, setIsOpen] = useState(false);
+    const [selectedLecture, setSelectedLecture] = useState<string | null>(null);
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setQuery(e.target.value);
+        setIsOpen(e.target.value.length > 0);
+    };
+
+    const handleClear = () => setSelectedLecture(null);
 
     return (
         <div className="flex flex-col justify-center items-center py-8">
@@ -38,31 +89,44 @@ const ClassInfo = () => {
                         <p className="mb-2 font-medium text-[25px]" style={{ color: palette.gray.gray900 }}>
                             강의명
                         </p>
-                        <div className="flex gap-[25px]">
-                            <CustomInput
-                                className="rounded-[55px]"
-                                leftIcon={<img src={ic_search} alt="검색아이콘" className="w-full h-full object-contain"/>}
-                                placeholder="강의명 (강의 상세 페이지의 강의를 토대로 자동 입력)"
+                        <div className="flrx flex-col gap-[21px]">
+                            <div className="flex gap-[25px]">
+                                <CustomInput
+                                    className="rounded-[55px]"
+                                    leftIcon={<img src={ic_search} alt="검색아이콘" className="w-full h-full object-contain"/>}
+                                    placeholder="강의명 (강의 상세 페이지의 강의를 토대로 자동 입력)"
+                                    value={query}
+                                    onChange={handleInputChange}
+                                    onFocus={() => query && setIsOpen(true)}
+                                />
+                                <SearchButton onClick={handleClear} />
+                            </div>
+                            <SearchDropdown
+                                results={LECTURE_RESULTS}
+                                onSelect={lecture => console.log(lecture)}
+                                isOpen={isOpen}
+                                query={query}
                             />
-                            <SearchButton />
                         </div>
 
-                        <div className="flex gap-[15px] mt-[19px] w-full">
-                            <div className="flex gap-[5px] items-center justify-center">
-                                <span
-                                    className="flex items-center rounded-full px-3 py-1 text-[15.3px] font-bold"
-                                    style={{
-                                        backgroundColor: palette.primary.primaryDark,
-                                        color: palette.white,
-                                    }}
-                                >
-                                선택한 강의명
-                                    <span className="size-[20px] flex items-center justify-center ml-1">
-                                        <img src={ic_x} alt="x" className="w-full h-full object-contain"/>
+                        {selectedLecture && (
+                            <div className="flex gap-[15px] mt-[19px] w-full">
+                                <div className="flex gap-[5px] items-center justify-center">
+                                    <span
+                                        className="flex items-center rounded-full px-3 py-1 text-[15.3px] font-bold"
+                                        style={{
+                                            backgroundColor: palette.primary.primaryDark,
+                                            color: palette.white,
+                                        }}
+                                    >
+                                    {selectedLecture}
+                                        <span className="size-[20px] flex items-center justify-center ml-1">
+                                            <img src={ic_x} alt="x" className="w-full h-full object-contain"/>
+                                        </span>
                                     </span>
-                                </span>
+                                </div>
                             </div>
-                        </div>
+                        )}
                     </div>
 
                     {/* 강사명 */}
