@@ -40,7 +40,10 @@ const Main = () => {
 
       <div className="pl-[78px] pr-[78px] mt-[80px]">
         <div className="flex justify-between">
-          <h3 className="font-medium text-[25px] leading-[100%] tracking-[0%]" style={{ color: palette.gray.gray900 }}>
+          <h3
+            className="font-medium text-[25px] leading-[100%] tracking-[0%]"
+            style={{ color: palette.gray.gray900 }}
+          >
             인기 리뷰
           </h3>
           <div
@@ -59,7 +62,10 @@ const Main = () => {
 
       <div className="pl-[78px] pr-[78px] mt-[80px] mb-[80px]">
         <div className="flex justify-between">
-          <h3 className="font-medium text-[25px] leading-[100%] tracking-[0%]" style={{ color: palette.gray.gray900 }}>
+          <h3
+            className="font-medium text-[25px] leading-[100%] tracking-[0%]"
+            style={{ color: palette.gray.gray900 }}
+          >
             최신 리뷰
           </h3>
           <div

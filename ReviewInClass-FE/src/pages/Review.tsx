@@ -9,6 +9,7 @@ import useSearchList from "../hooks/useSearchList";
 import NoResult from "../components/NoResult";
 import { useSearch } from "../context/SearchContext";
 import palette from "../styles/theme";
+import Loading from "../components/Loading";
 
 const Review = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -31,7 +32,7 @@ const Review = () => {
   const { data: searchedReview = [], isLoading, isError } = useSearchList();
   const { search } = useSearch();
 
-  if (isLoading) return <div>로딩중</div>;
+  if (isLoading) return <Loading />;
   if (isError) return <div>에러</div>;
   if (searchedReview.length === 0) return <NoResult />;
 
