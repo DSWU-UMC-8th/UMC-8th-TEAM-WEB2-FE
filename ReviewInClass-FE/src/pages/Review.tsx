@@ -6,6 +6,7 @@ import ReviewFilterBar from "../components/ReviewFilterBar";
 import type { Filters } from "../components/ReviewFilterBar";
 import MiniBanner from "../components/common/Banner/MiniBanner";
 import { LECTURE } from "../data/banner";
+import SwapArrowIcon from "../assets/arrow/icon-arrow-swap_vert.svg";
 
 const Review = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -71,22 +72,12 @@ const Review = () => {
   return (
     <div className="px-8 py-6">
       <MiniBanner lectures={LECTURE.slice(0, 4)} />
-      <ReviewFilterBar onSearch={setFilters} />
-
-      <div className="flex justify-end mb-4">
-        <button
-          onClick={toggleOrder}
-          className="text-sm text-gray-700 flex items-center"
-        >
-          {sortType === "latest"
-            ? order === "desc"
-              ? "최신순 🔽"
-              : "오래된순 🔼"
-            : order === "desc"
-            ? "인기순 🔽"
-            : "인기 낮은 순 🔼"}
-        </button>
-      </div>
+      <ReviewFilterBar
+        onSearch={setFilters}
+        sortType={sortType}
+        order={order}
+        onToggleOrder={toggleOrder}
+      />
 
       <div className="space-y-4">
         {paginatedReviews.map((review) => (

@@ -1,6 +1,19 @@
 import React, {useState} from "react";
+import SwapArrowIcon from "../assets/arrow/icon-arrow-swap_vert.svg";
 
-const ReviewFilterBar = ({ onSearch }: { onSearch: (filters: Filters) => void }) => {
+type Props = {
+  onSearch: (filters: Filters) => void;
+  sortType: string;
+  order: "asc" | "desc";
+  onToggleOrder: () => void;
+};
+
+const ReviewFilterBar = ({
+  onSearch,
+  sortType,
+  order,
+  onToggleOrder,
+}: Props) => {
   const [category, setCategory] = useState("");
   const [level, setLevel] = useState("");
   const [period, setPeriod] = useState("");
@@ -58,6 +71,27 @@ const ReviewFilterBar = ({ onSearch }: { onSearch: (filters: Filters) => void })
         <button onClick={handleSearch} style={{cursor: "pointer"}} className="border px-3 py-1 rounded text-sm text-gray-700 border-none bg-gray-300">검색</button>
         <button onClick={handleReset} style={{cursor: "pointer"}} className="border px-3 py-1 rounded text-sm text-gray-700 border-none bg-gray-300">초기화</button>
       </div>
+
+      {/* 정렬 버튼 */}
+      <button
+        onClick={onToggleOrder}
+        className="text-sm text-gray-700 flex items-center"
+      >
+        <span className="flex items-center gap-1">
+          {sortType === "latest"
+            ? order === "desc"
+              ? "최신순"
+              : "오래된순"
+            : order === "desc"
+            ? "인기순"
+            : "인기 낮은 순"}
+          <img
+            src={SwapArrowIcon}
+            alt="정렬 방향"
+            className={`w-4 h-4 transition-transform ${order === "desc" ? "rotate-180" : ""}`}
+          />
+        </span>
+      </button>
     </div>
   );
 };
