@@ -8,21 +8,26 @@ import Popular from "../../assets/navbar/icon-navbar-popular.svg";
 import Latest from "../../assets/navbar/icon-navbar-latest.svg";
 import Search from "../../assets/navbar/icon-navbar-search.svg";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useSearch } from "../../context/SearchContext";
 
 const Navbar = () => {
   const [searchValue, setSearchValue] = useState("");
+  const { setSearch } = useSearch();
   const navigate = useNavigate();
   const location = useLocation();
   const [clickedPath, setClickedPath] = useState<string | null>(null);
 
   const handleSubmit = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
-      console.log(searchValue);
+      setSearch(searchValue);
       setSearchValue("");
+      navigate("/review");
     }
   };
 
   const handleNavigate = (path: string, setClicked: boolean, sort?: string) => {
+    scrollToTop();
+    setSearch("");
     if (sort) {
       navigate(`${path}?sort=${sort}`);
     } else {
@@ -38,9 +43,16 @@ const Navbar = () => {
     return clickedPath === path;
   };
 
+  const scrollToTop = () => {
+    window.scroll({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
+
   return (
     <nav
-      className="h-[93px] pt-[16px] pr-[24px] pb-[16px] pl-[24px] flex items-center justify-between fixed top-0 left-0 right-0 z-50"
+      className="h-[93px] pt-[16px] pr-[24px] pb-[16px] pl-[24px] flex items-center justify-between fixed top-0 left-0 right-0 z-1000"
       style={{ background: palette["neutral-bg"] }}
     >
       <div className="flex gap-[24px] items-center">
