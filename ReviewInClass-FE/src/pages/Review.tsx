@@ -96,7 +96,6 @@ return (
       onToggleOrder={toggleOrder}
     />
 
-
       <div className="space-y-4">
         {paginatedReviews.map((review) => (
           <ReviewCard key={review.id} {...review} />
