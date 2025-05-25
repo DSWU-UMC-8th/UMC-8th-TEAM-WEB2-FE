@@ -6,6 +6,7 @@ import type { Filters } from "../components/ReviewFilterBar";
 import MiniBanner from "../components/common/Banner/MiniBanner";
 import { LECTURE } from "../data/banner";
 import useSearchList from "../hooks/useSearchList";
+import NoResult from "../components/NoResult";
 
 const Review = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -29,6 +30,7 @@ const Review = () => {
 
   if (isLoading) return <div>로딩중</div>;
   if (isError) return <div>에러</div>;
+  if (searchedReview.length === 0) return <NoResult />;
 
   console.log(searchedReview);
 
