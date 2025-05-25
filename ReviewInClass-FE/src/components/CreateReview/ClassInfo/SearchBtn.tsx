@@ -1,6 +1,10 @@
 import palette from "../../../styles/theme"
 
-const SearchButton = () => {
+type SearchButtonProps = {
+  onClick?: React.MouseEventHandler<HTMLButtonElement>;
+};
+
+const SearchButton: React.FC<SearchButtonProps> = ({ onClick }) => {
     return(
         <button
             className="w-[101px] h-[55px] px-[12px] py-[14px] 
@@ -11,8 +15,9 @@ const SearchButton = () => {
                 color: palette.white,
                 transition: "background 0.2s",
             }}
-            >
-                검색
+            onClick={onClick}
+        >
+            검색
         </button>
     )
 }
