@@ -1,12 +1,15 @@
 import React, { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import ReviewCard from "../components/common/ReviewCard";
-import { dummyReviews } from "../data/dummyReviews";
 import ReviewFilterBar from "../components/ReviewFilterBar";
 import type { Filters } from "../components/ReviewFilterBar";
 import MiniBanner from "../components/common/Banner/MiniBanner";
 import { LECTURE } from "../data/banner";
-import SwapArrowIcon from "../assets/arrow/icon-arrow-swap_vert.svg";
+import useSearchList from "../hooks/useSearchList";
+import NoResult from "../components/NoResult";
+import { useSearch } from "../context/SearchContext";
+import palette from "../styles/theme";
+import Loading from "../components/Loading";
 
 const Review = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -25,16 +28,22 @@ const Review = () => {
     setOrder((prev) => (prev === "desc" ? "asc" : "desc"));
   };
 
+  // 검색
+  const { data: searchedReview = [], isLoading, isError } = useSearchList();
+  const { search } = useSearch();
+
+  if (isLoading) return <Loading />;
+  if (isError) return <div>에러</div>;
+  if (searchedReview.length === 0) return <NoResult />;
+
   // 정렬
-  const sortedReviews = [...dummyReviews].sort((a, b) => {
+  const sortedReviews = [...searchedReview].sort((a, b) => {
     if (sortType === "latest") {
       const dateA = new Date(a.createdAt).getTime();
       const dateB = new Date(b.createdAt).getTime();
       return order === "desc" ? dateB - dateA : dateA - dateB;
     } else if (sortType === "popular") {
-      return order === "desc"
-        ? b.likeCount - a.likeCount
-        : a.likeCount - b.likeCount;
+      return order === "desc" ? b.likeCount - a.likeCount : a.likeCount - b.likeCount;
     }
     return 0;
   });
@@ -57,8 +66,7 @@ const Review = () => {
     const reviewPeriodRank = periodPriority[review.studyPeriod] ?? Infinity;
     const filterPeriodRank = periodPriority[filters.period] ?? Infinity;
 
-    const matchPeriod =
-      !filters.period || reviewPeriodRank <= filterPeriodRank;
+    const matchPeriod = !filters.period || reviewPeriodRank <= filterPeriodRank;
 
     return matchCategory && matchLevel && matchPeriod;
   });
@@ -69,15 +77,25 @@ const Review = () => {
     currentPage * reviewsPerPage
   );
 
-  return (
-    <div className="px-8 py-6">
-      <MiniBanner lectures={LECTURE.slice(0, 4)} />
-      <ReviewFilterBar
-        onSearch={setFilters}
-        sortType={sortType}
-        order={order}
-        onToggleOrder={toggleOrder}
-      />
+return (
+  <div className="px-8 py-6">
+    {/* 검색어 유무에 따라 배너 or 메시지 */}
+    {!search && <MiniBanner lectures={LECTURE.slice(0, 4)} />}
+    {search && (
+      <p className="text-center font-semibold text-[25px] leading-[33.66px] tracking-[-0.01em]">
+        <span style={{ color: palette.secondary.secondaryDark }}>{search}</span>에 대한{" "}
+        {searchedReview.length}개의 검색 결과가 있습니다.
+      </p>
+    )}
+
+    {/* 정렬 기능 포함된 필터바 */}
+    <ReviewFilterBar
+      onSearch={setFilters}
+      sortType={sortType}
+      order={order}
+      onToggleOrder={toggleOrder}
+    />
+
 
       <div className="space-y-4">
         {paginatedReviews.map((review) => (
@@ -93,7 +111,7 @@ const Review = () => {
           onClick={() => setCurrentPage((prev) => prev - 1)}
           style={{
             backgroundColor: currentPage === 1 ? "#E9E9E9" : "#CAE3A5", // gray200 or primaryLight
-            color: currentPage === 1 ? "#B5B5B5" : "#6FA235",            // gray500 or primaryDark
+            color: currentPage === 1 ? "#B5B5B5" : "#6FA235", // gray500 or primaryDark
             cursor: currentPage === 1 ? "not-allowed" : "pointer",
           }}
           className="px-3 py-1 rounded border"
