@@ -32,6 +32,14 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: "Poppins";
+  src: url("/fonts/Poppins-Regular.ttf") format("ttf");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 @layer base {
   html,
   body {
@@ -43,3 +51,29 @@
 
 @tailwind components;
 @tailwind utilities;
+
+/* 스크롤바 */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+/* 길이 조절용 버튼 */
+.custom-scrollbar::-webkit-scrollbar-button:start:decrement {
+  height: 10px; 
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-button:end:increment {
+  height: 30px; 
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #D9D9D9; 
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #F7F8F9;
+  border-radius: 10px;
+}
