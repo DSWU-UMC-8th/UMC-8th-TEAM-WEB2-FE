@@ -9,7 +9,7 @@ import SearchButton from "./SearchBtn";
 import ImageUploadBox from "./ImageUpload";
 import SearchDropdown from "./SearchDropdown";
 import type { Lecture } from "../../../types/lecture";
-import { searchLectures } from "../../../apis/createReview";
+import { searchLectures, searchPlatforms } from "../../../apis/createReview";
 import TagBadge from "./TagBadge";
 
 
@@ -20,12 +20,33 @@ const ClassInfo = () => {
     const [isManualInput, setIsManualInput] = useState(false);
     const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+    // 플랫폼 검색 관련 상태
+    const [platformQuery, setPlatformQuery] = useState('');
+    const [isPlatformOpen, setIsPlatformOpen] = useState(false);
+    const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null);
+    const platformTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
     const { data: searchResults, refetch: searchLecturesQuery } = useQuery({
         queryKey: ['lectures', query],
         queryFn: async () => {
             if (!query) return { result: [] };
             try {
                 const data = await searchLectures(query);
+                return { result: Array.isArray(data.result) ? data.result : [] };
+            } catch {
+                return { result: [] };
+            }
+        },
+        enabled: false,
+    });
+
+    // 플랫폼 검색 쿼리
+    const { data: platformSearchResults, refetch: refetchPlatformSearch } = useQuery({
+        queryKey: ['platforms', platformQuery],
+        queryFn: async () => {
+            if (!platformQuery) return { result: [] };
+            try {
+                const data = await searchPlatforms(platformQuery);
                 return { result: Array.isArray(data.result) ? data.result : [] };
             } catch {
                 return { result: [] };
@@ -74,6 +95,34 @@ const ClassInfo = () => {
         setIsOpen(false);
     };
 
+    // 플랫폼 검색 핸들러
+    const handlePlatformInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setPlatformQuery(value);
+
+        if (platformTimeoutRef.current) clearTimeout(platformTimeoutRef.current);
+        if (value.length > 0) {
+            platformTimeoutRef.current = setTimeout(() => {
+                refetchPlatformSearch();
+                setIsPlatformOpen(true);
+            }, 500);
+        } else {
+            setIsPlatformOpen(false);
+        }
+    };
+
+    const handlePlatformSelect = (platform: any) => {
+        setSelectedPlatform(platform.name);
+        setPlatformQuery(platform.name);
+        setIsPlatformOpen(false);
+    };
+
+    const handlePlatformClear = () => {
+        setSelectedPlatform(null);
+        setPlatformQuery('');
+        setIsPlatformOpen(false);
+    };
+
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             const dropdown = document.getElementById('search-dropdown');
@@ -114,7 +163,7 @@ const ClassInfo = () => {
                         <p className="mb-2 font-medium text-[25px]" style={{ color: palette.gray.gray900 }}>
                             강의명
                         </p>
-                        <div className="flrx flex-col gap-[21px]">
+                        <div className="flex flex-col gap-[21px]">
                             <div className="flex gap-[25px]">
                                 {!isManualInput ? (
                                     <>
@@ -129,14 +178,26 @@ const ClassInfo = () => {
                                         <SearchButton onClick={handleSearchClick} />
                                     </>
                                 ) : (
-                                    <CustomInput
-                                        className="text-[17px] px-[24px] py-[15px] rounded-[16px] border"
-                                        style={{ borderColor: palette.gray.gray300 }}
-                                        placeholder="강의명을 입력해 주세요."
-                                        value={query}
-                                        onChange={handleInputChange}
-                                    />
+                                    <div>
+                                        <CustomInput
+                                            className="w-[880px] text-[17px] px-[24px] py-[15px] rounded-[16px] border"
+                                            style={{ borderColor: palette.gray.gray300 }}
+                                            placeholder="강의명을 입력해 주세요."
+                                            value={query}
+                                            onChange={handleInputChange}
+                                        />
+
+                                        <div className="flex justify-end mt-[14px] mr-[10px]">
+                                            <button
+                                                className="text-[17px] text-[#2B2B2B] underline cursor-pointer"
+                                                onClick={() => setIsManualInput(false)}
+                                            >
+                                                다시 검색하기
+                                            </button>
+                                        </div>
+                                    </div>
                                 )}
+
                             </div>
                             <div id="search-dropdown">
                                 <SearchDropdown
@@ -147,17 +208,6 @@ const ClassInfo = () => {
                                 />
                             </div>
                         </div>
-
-                        {isManualInput && (
-                            <div className="flex justify-end mt-2">
-                                <button
-                                    className="text-[15px] text-[#2B2B2B] underline"
-                                    onClick={() => setIsManualInput(false)}
-                                >
-                                    다시 검색하기
-                                </button>
-                            </div>
-                        )}
 
                         {selectedLecture && (
                             <div className="flex gap-[15px] mt-[19px] w-full">
@@ -205,16 +255,34 @@ const ClassInfo = () => {
                                 className="rounded-[55px]"
                                 leftIcon={<img src={ic_search} alt="검색아이콘" className="w-full h-full object-contain"/>}
                                 placeholder="플랫폼을 검색해 주세요. (강의명 검색 시 자동 선택됩니다.)"
-                                value={selectedLecture?.platform || ''}
-                                readOnly
+                                value={platformQuery}
+                                onChange={handlePlatformInputChange}
+                                onFocus={() => platformQuery && setIsPlatformOpen(true)}
                             />
-                            <SearchButton onClick={handleClear} />
+                            <SearchButton onClick={handlePlatformClear} />
                         </div>
 
-                        {selectedLecture?.platform && (
+                        {/* 플랫폼 드롭다운 */}
+                        {isPlatformOpen && (
+                            <div className="relative">
+                                <ul className="absolute gap-[15px] w-[760px] mt-[15px] bg-white shadow-2xl rounded-[20px] z-50 max-h-60 overflow-y-auto">
+                                    {(platformSearchResults?.result || []).map((platform) => (
+                                        <li
+                                            key={platform.id}
+                                            className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                            onClick={() => handlePlatformSelect(platform)}
+                                        >
+                                            {platform.name}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
+                        {/* 선택된 플랫폼 뱃지 */}
+                        {selectedPlatform && (
                             <div className="flex gap-[15px] mt-[19px] w-full">
                                 <div className="flex gap-[5px] items-center justify-center">
-                                    <TagBadge label={selectedLecture.platform} onClear={handleClear} />
+                                    <TagBadge label={selectedPlatform} onClear={handlePlatformClear} />
                                 </div>
                             </div>
                         )}
