@@ -8,12 +8,11 @@ import { dummyReviews as LATEST } from "../data/dummyReviews";
 import palette from "../styles/theme";
 import ReviewCard from "../components/common/ReviewCard";
 import { useEffect, useState } from "react";
-import { getAllLectures, getPopularReviews } from "../apis/mainPage";
-import type { Content, Lectures } from "../types/mainLectures";
+import { getPopularReviews } from "../apis/mainPage";
+import type { Content } from "../types/mainLectures";
 
 const Main = () => {
   const navigate = useNavigate();
-  const [bannerData, setBannerData] = useState<Lectures[]>([]);
   const latestReviews = [...LATEST].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 5);
   const [popularReviews, setPopularRevies] = useState<Content[]>([]);
 
@@ -37,9 +36,6 @@ const Main = () => {
   useEffect(() => {
     const getBannerLectures = async () => {
       try {
-        const data = await getAllLectures();
-        setBannerData(data.result);
-
         const reviewData = await getPopularReviews();
         setPopularRevies(reviewData.result.content);
         console.log(reviewData.result.content);
@@ -51,11 +47,9 @@ const Main = () => {
     getBannerLectures();
   }, []);
 
-  const shuffled = [...bannerData].sort(() => Math.random() - 0.5);
-
   return (
     <div className="mt-[40px]">
-      <Banner lectures={shuffled.slice(0, 4)} />
+      <Banner />
 
       <div className="pl-[78px] pr-[78px] mt-[80px]">
         <div className="flex justify-between">

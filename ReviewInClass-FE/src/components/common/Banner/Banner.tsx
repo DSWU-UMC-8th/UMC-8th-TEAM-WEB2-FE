@@ -5,28 +5,21 @@ import "./Banner.css";
 import Star from "../Star";
 import type { Lectures } from "../../../types/mainLectures";
 import { useEffect, useState } from "react";
-import { getLectureRating } from "../../../apis/mainPage";
+import { getAllLectures, getLectureRating } from "../../../apis/mainPage";
 
 /**
  * 강의 배너를 나타내는 컴포넌트입니다.
- * 강의 내용이 담긴 배열을 넘겨 사용하면 됩니다.
- *
- * @param {array} lectures -- 강의 정보에 대한 배열
  *
  * * */
-
-interface BannerProps {
-  lectures: Lectures[];
-}
 
 interface RatingMap {
   [lectureId: number]: number;
 }
 
-const Banner = ({ lectures }: BannerProps) => {
+const Banner = () => {
   const settings = {
     dots: true,
-    intinite: true,
+    infinite: true,
     speed: 500,
     slidesToShow: 1,
     slidesToScroll: 1,
@@ -38,10 +31,27 @@ const Banner = ({ lectures }: BannerProps) => {
 
   const [ratings, setRatings] = useState<RatingMap>({});
 
+  const [shuffledLectures, setShuffledLectures] = useState<Lectures[]>([]);
+
+  useEffect(() => {
+    const getBannerLectures = async () => {
+      try {
+        const data = await getAllLectures();
+
+        const shuffled = [...data.result].sort(() => Math.random() - 0.5).slice(0, 5);
+        setShuffledLectures(shuffled);
+      } catch (error) {
+        console.error("배너 데이터 오류", error);
+      }
+    };
+
+    getBannerLectures();
+  }, []);
+
   useEffect(() => {
     const getLectureRates = async () => {
       try {
-        const lectureIds = lectures.map((lecture) => {
+        const lectureIds = shuffledLectures.map((lecture) => {
           return getLectureRating(lecture.lectureId).then((res) => ({
             lectureId: lecture.lectureId,
             rating: res.result.averageRating,
@@ -61,11 +71,11 @@ const Banner = ({ lectures }: BannerProps) => {
       }
     };
     getLectureRates();
-  }, [lectures]);
+  }, [shuffledLectures]);
 
   return (
     <Slider {...settings} className="w-full">
-      {lectures.map((lecture, idx) => (
+      {shuffledLectures.map((lecture, idx) => (
         <div key={idx} className="pl-[78px] pr-[78px]">
           <div className="w-full h-[464px] rounded-[25.7px] overflow-hidden relative">
             <img src={lecture.lecture?.imgUrls?.[0] ?? ""} className="w-full h-full object-cover object-center" />
