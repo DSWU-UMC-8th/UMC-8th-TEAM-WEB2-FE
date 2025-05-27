@@ -1,64 +1,89 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import palette from "../../../styles/theme"; 
 import ic_pic from "../../../assets/icon-pic-select.svg"
 import logo from "../../../assets/icon-logo.svg"
 import ic_search from "../../../assets/navbar/icon-navbar-search.svg"
-import ic_x from "../../../assets/x-icon.svg";
 import CustomInput from "./InputComponent";
 import SearchButton from "./SearchBtn";
 import ImageUploadBox from "./ImageUpload";
 import SearchDropdown from "./SearchDropdown";
+import type { Lecture } from "../../../types/lecture";
+import { searchLectures } from "../../../apis/createReview";
+import TagBadge from "./TagBadge";
 
-
-const LECTURE_RESULTS = [
-  {
-    title: "협업 툴 완전 정복! Notion, Figma 사용법 초급 강의",
-    instructor: "홍길동",
-    platform: "인프런",
-  },
-  {
-    title: "협업 시 사용할 툴의 꿀팁 강의",
-    instructor: "김철수",
-    platform: "패스트캠퍼스",
-  },
-    {
-    title: "협업 시 사용할 툴의 꿀팁 강의",
-    instructor: "김철수",
-    platform: "패스트캠퍼스",
-  },
-    {
-    title: "협업 시 사용할 툴의 꿀팁 강의",
-    instructor: "김철수",
-    platform: "패스트캠퍼스",
-  },
-    {
-    title: "협업 시 사용할 툴의 꿀팁 강의",
-    instructor: "김철수",
-    platform: "패스트캠퍼스",
-  },
-    {
-    title: "협업 시 사용할 툴의 꿀팁 강의",
-    instructor: "김철수",
-    platform: "패스트캠퍼스",
-  },
-    {
-    title: "협업 시 사용할 툴의 꿀팁 강의",
-    instructor: "김철수",
-    platform: "패스트캠퍼스",
-  },
-];
 
 const ClassInfo = () => {
     const [query, setQuery] = useState('');
     const [isOpen, setIsOpen] = useState(false);
-    const [selectedLecture, setSelectedLecture] = useState<string | null>(null);
+    const [selectedLecture, setSelectedLecture] = useState<Lecture | null>(null);
+    const [isManualInput, setIsManualInput] = useState(false);
+    const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    const { data: searchResults, refetch: searchLecturesQuery } = useQuery({
+        queryKey: ['lectures', query],
+        queryFn: async () => {
+            if (!query) return { result: [] };
+            try {
+                const data = await searchLectures(query);
+                return { result: Array.isArray(data.result) ? data.result : [] };
+            } catch {
+                return { result: [] };
+            }
+        },
+        enabled: false,
+    });
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setQuery(e.target.value);
-        setIsOpen(e.target.value.length > 0);
+        const value = e.target.value;
+        setQuery(value);
+
+        if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+        if (value.length > 0) {
+            searchTimeoutRef.current = setTimeout(() => {
+                searchLecturesQuery();
+                setIsOpen(true);
+            }, 500);
+        } else {
+            setIsOpen(false);
+        }
     };
 
-    const handleClear = () => setSelectedLecture(null);
+    const handleSearchClick = () => {
+        if (query.length > 0) {
+            searchLecturesQuery();
+            setIsOpen(true);
+        }
+    };
+
+    const handleClear = () => {
+        setSelectedLecture(null);
+        setQuery('');
+        setIsOpen(false);
+        setIsManualInput(false);
+    };
+
+    const handleLectureSelect = (lecture: Lecture) => {
+        setSelectedLecture(lecture);
+        setQuery(lecture.name);
+        setIsOpen(false);
+    };
+
+    const handleManualInput = () => {
+        setIsManualInput(true);
+        setIsOpen(false);
+    };
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            const dropdown = document.getElementById('search-dropdown');
+            if (dropdown && !dropdown.contains(event.target as Node)) {
+                setIsOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     return (
         <div className="flex flex-col justify-center items-center py-8">
@@ -91,39 +116,53 @@ const ClassInfo = () => {
                         </p>
                         <div className="flrx flex-col gap-[21px]">
                             <div className="flex gap-[25px]">
-                                <CustomInput
-                                    className="rounded-[55px]"
-                                    leftIcon={<img src={ic_search} alt="검색아이콘" className="w-full h-full object-contain"/>}
-                                    placeholder="강의명 (강의 상세 페이지의 강의를 토대로 자동 입력)"
-                                    value={query}
-                                    onChange={handleInputChange}
-                                    onFocus={() => query && setIsOpen(true)}
-                                />
-                                <SearchButton onClick={handleClear} />
+                                {!isManualInput ? (
+                                    <>
+                                        <CustomInput
+                                            className="rounded-[55px]"
+                                            leftIcon={<img src={ic_search} alt="검색아이콘" className="w-full h-full object-contain"/>}
+                                            placeholder="강의명 (강의 상세 페이지의 강의를 토대로 자동 입력)"
+                                            value={query}
+                                            onChange={handleInputChange}
+                                            onFocus={() => query && setIsOpen(true)}
+                                        />
+                                        <SearchButton onClick={handleSearchClick} />
+                                    </>
+                                ) : (
+                                    <CustomInput
+                                        className="text-[17px] px-[24px] py-[15px] rounded-[16px] border"
+                                        style={{ borderColor: palette.gray.gray300 }}
+                                        placeholder="강의명을 입력해 주세요."
+                                        value={query}
+                                        onChange={handleInputChange}
+                                    />
+                                )}
                             </div>
-                            <SearchDropdown
-                                results={LECTURE_RESULTS}
-                                onSelect={lecture => console.log(lecture)}
-                                isOpen={isOpen}
-                                query={query}
-                            />
+                            <div id="search-dropdown">
+                                <SearchDropdown
+                                    results={searchResults?.result || []}
+                                    onSelect={handleLectureSelect}
+                                    isOpen={isOpen}
+                                    onManualInput={handleManualInput}
+                                />
+                            </div>
                         </div>
+
+                        {isManualInput && (
+                            <div className="flex justify-end mt-2">
+                                <button
+                                    className="text-[15px] text-[#2B2B2B] underline"
+                                    onClick={() => setIsManualInput(false)}
+                                >
+                                    다시 검색하기
+                                </button>
+                            </div>
+                        )}
 
                         {selectedLecture && (
                             <div className="flex gap-[15px] mt-[19px] w-full">
                                 <div className="flex gap-[5px] items-center justify-center">
-                                    <span
-                                        className="flex items-center rounded-full px-3 py-1 text-[15.3px] font-bold"
-                                        style={{
-                                            backgroundColor: palette.primary.primaryDark,
-                                            color: palette.white,
-                                        }}
-                                    >
-                                    {selectedLecture}
-                                        <span className="size-[20px] flex items-center justify-center ml-1">
-                                            <img src={ic_x} alt="x" className="w-full h-full object-contain"/>
-                                        </span>
-                                    </span>
+                                    <TagBadge label={selectedLecture.name} onClear={handleClear} />
                                 </div>
                             </div>
                         )}
@@ -135,32 +174,25 @@ const ClassInfo = () => {
                             강사명
                         </p>
                         <CustomInput
-                            className="text-[17px] px-[24px] py-[15px] rounded-[16px] border"
+                            className="w-[880px] text-[17px] px-[24px] py-[15px] rounded-[16px] border"
                             style={{ borderColor: palette.gray.gray300 }}
                             placeholder="강사명을 입력해 주세요. (강의명 검색 시 자동 입력됩니다.)"
+                            value={selectedLecture?.instructor || ''}
+                            readOnly
                         />
-                        <div className="flex justify-around">
-                            <div className="flex gap-[15px] mt-[19px] w-full">
-                                <div className="flex gap-[5px] items-center justify-center">
-                                    <span
-                                        className="flex items-center rounded-full px-3 py-1 text-[15.3px] font-bold"
-                                        style={{
-                                            backgroundColor: palette.primary.primaryDark,
-                                            color: palette.white,
-                                        }}
-                                    >
-                                        홍길동
-                                        <span className="size-[20px] flex items-center justify-center ml-1">
-                                            <img src={ic_x} alt="x" className="w-full h-full object-contain"/>
-                                        </span>
-                                    </span>
+                        {selectedLecture?.instructor && (
+                            <div className="flex justify-around">
+                                <div className="flex gap-[15px] mt-[19px] w-full">
+                                    <div className="flex gap-[5px] items-center justify-center">
+                                        <TagBadge label={selectedLecture.instructor} onClear={handleClear} />
+                                    </div>
                                 </div>
+                                
+                                <span className="text-right text-[15px] mt-[19px] shrink-0" style={{ color: palette.gray.gray700 }}>
+                                    (10자 이내)
+                                </span>
                             </div>
-                            
-                            <span className="text-right text-[15px] mt-[19px] shrink-0" style={{ color: palette.gray.gray700 }}>
-                                (10자 이내)
-                            </span>
-                        </div>
+                        )}
                     </div>
                     
                     {/* 플랫폼 */}
@@ -173,28 +205,19 @@ const ClassInfo = () => {
                                 className="rounded-[55px]"
                                 leftIcon={<img src={ic_search} alt="검색아이콘" className="w-full h-full object-contain"/>}
                                 placeholder="플랫폼을 검색해 주세요. (강의명 검색 시 자동 선택됩니다.)"
+                                value={selectedLecture?.platform || ''}
+                                readOnly
                             />
-                            <SearchButton />
+                            <SearchButton onClick={handleClear} />
                         </div>
 
-                        {/* 태그 리스트 */}
-                        <div className="flex gap-[15px] mt-[19px] w-full">
-                            <div className="flex gap-[5px] items-center justify-center">
-                                <span
-                                    className="flex items-center rounded-full px-3 py-1 text-[15.3px] font-bold"
-                                    style={{
-                                        backgroundColor: palette.primary.primaryDark,
-                                        color: palette.white,
-                                    }}
-                                >
-                                뮤소스
-                                    <span className="size-[20px] flex items-center justify-center ml-1">
-                                        <img src={ic_x} alt="x" className="w-full h-full object-contain"/>
-                                    </span>
-                                </span>
+                        {selectedLecture?.platform && (
+                            <div className="flex gap-[15px] mt-[19px] w-full">
+                                <div className="flex gap-[5px] items-center justify-center">
+                                    <TagBadge label={selectedLecture.platform} onClear={handleClear} />
+                                </div>
                             </div>
-
-                        </div>
+                        )}
                     </div>
                 </section>
 

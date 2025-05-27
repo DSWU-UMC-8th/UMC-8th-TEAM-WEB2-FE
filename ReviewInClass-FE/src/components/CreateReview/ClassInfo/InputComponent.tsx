@@ -27,7 +27,7 @@ const CustomInput = React.forwardRef<HTMLInputElement, CustomInputProps>(
         <input
           ref={ref || inputRef}
           className={`
-            w-full flex-1 text-[17px]
+            w-[750px] flex-1 text-[17px]
             ${leftIcon ? "px-[70px]" : "px-[16px]"}
             py-[15px] focus:outline-none focus:ring-2 focus:border-[#6FA235]
             transition-shadow
