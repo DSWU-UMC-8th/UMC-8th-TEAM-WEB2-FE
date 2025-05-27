@@ -3,12 +3,12 @@
 > 추후 수정 예정
 
 
-# ⚒️ 팀원 소개
+## ⚒️ 팀원 소개
 
 |              김진효</br>[@jinhyo0](https://github.com/jinhyo0)               |               박소이</br>[@soyyyyy](https://github.com/soyyyyy)                |               김희윤</br>[@heeyun817](https://github.com/heeyun817)                |                김가빈</br>[@gcongK](https://github.com/gcongK)                |
 | :------------------------------------------------------------------------------: | :------------------------------------------------------------------------------: | :------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------: |
-| <img src = "https://avatars.githubusercontent.com/u/101444425?v=4" width ="250"> | <img src = "https://avatars.githubusercontent.com/u/101315059?v=4" width ="250"> | <img src = "https://avatars.githubusercontent.com/u/165611407?v=4" width ="250"> | <img src = "https://avatars.githubusercontent.com/u/90364636?v=4" width ="250"> |
-|                                   `좌석 선택`                                    |                              `메인`</br>`날짜 선택`                              |                                      `결제`                                      |                                     `메인`                                      |
+| <img src = "https://avatars.githubusercontent.com/u/150879545?v=4" width ="250"> | <img src = "https://avatars.githubusercontent.com/u/90364636?v=4" width ="250"> | <img src = "https://avatars.githubusercontent.com/u/90364739?v=4" width ="250"> | <img src = "https://avatars.githubusercontent.com/u/181479630?v=4" width ="250"> |
+|                                   `메인/404페이지/nav/모달`                                    |                              `리뷰 등록`                              |                                      `강의별 리뷰`                                      |                                     `리뷰 목록`                                      |
 
 <br/>
 <br/>
