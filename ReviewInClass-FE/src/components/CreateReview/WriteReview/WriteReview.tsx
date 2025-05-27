@@ -1,18 +1,30 @@
 import palette from "../../../styles/theme"; 
 import logo from "../../../assets/icon-logo.svg"
-import { useState } from "react";
 import ReactQuillEditor from "./TextEditor";
 import RatingSlider from "./RatingSlider";
+import type { StudyPeriod } from "../../../enums/StudyPeriod";
 import DurationCheckboxGroup from "./CheckBoxComponent";
 
-const WriteReview = () => {
-    const [content, setContent] = useState('');
-    const [rating, setRating] = useState(0);
-    const [checkbox, setCheckbox] = useState<string[]>([]);
+interface WriteReviewProps {
+    rating: number;
+    setRating: (v: number) => void;
+    content: string;
+    setContent: (v: string) => void;
+    studyPeriod: StudyPeriod;
+    setStudyPeriod: (v: StudyPeriod) => void;
+}
 
-        const handleEditorChange = (value: string) => {
-        setContent(value); // 상태 업데이트
-        };
+const WriteReview = ({
+    rating,
+    setRating,
+    content,
+    setContent,
+    studyPeriod,
+    setStudyPeriod,
+}: WriteReviewProps) => {
+    const handleEditorChange = (value: string) => {
+        setContent(value);
+    };
 
     return (
         <div className="flex flex-col justify-center items-center mb-[98px]">
@@ -40,7 +52,7 @@ const WriteReview = () => {
                         <ReactQuillEditor
                             value={content}
                             onChange={handleEditorChange} 
-                            style={{ width: '850px', height: '260px' }}
+                            style={{ width: '850px', height: '260px'}}
                         />
                     </div>
 
@@ -48,7 +60,10 @@ const WriteReview = () => {
                         <p className="font-medium text-[25px]" style={{ color: palette.gray.gray900 }}>
                             강의를 다 듣는데 얼마나 걸렸나요?
                         </p>
-                        <DurationCheckboxGroup values={checkbox} onChange={setCheckbox} />
+                        <DurationCheckboxGroup
+                            value={studyPeriod}
+                            onChange={setStudyPeriod}
+                        />
                     </div>
                 </section>
             </div>

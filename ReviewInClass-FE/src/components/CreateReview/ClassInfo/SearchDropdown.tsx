@@ -1,4 +1,4 @@
-import type { Lecture } from "../../../types/lecture";
+import type { Lecture } from "../../../types/reviewCreate";
 
 interface SearchDropdownProps {
     results: Lecture[];

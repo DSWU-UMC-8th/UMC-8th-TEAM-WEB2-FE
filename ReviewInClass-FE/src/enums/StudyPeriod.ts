@@ -1,0 +1,8 @@
+export type StudyPeriod =
+  | "WITHIN_A_WEEK"
+  | "WITHIN_A_MONTH"
+  | "WITHIN_THREE_MONTHS"
+  | "WITHIN_SIX_MONTHS"
+  | "WITHIN_A_YEAR"
+  | "NOT_COMPLETED"
+;

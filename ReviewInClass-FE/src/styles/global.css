@@ -77,3 +77,17 @@
   background: #F7F8F9;
   border-radius: 10px;
 }
+
+.create-review-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 17px 14px;
+  width: 148px;
+  height: 50px;
+  border-radius: 11.9px;
+  font-size: 22px;
+  font-weight: 500;
+  color: white;
+  cursor: pointer;
+}

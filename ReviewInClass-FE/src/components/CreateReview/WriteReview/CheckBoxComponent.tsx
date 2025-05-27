@@ -1,47 +1,32 @@
 import React from "react";
+import type { StudyPeriod } from "../../../enums/StudyPeriod";
+import { studyPeriodOptions } from "../../../constants/periodOptions";
 
 interface DurationCheckboxGroupProps {
-    values: string[];
-    onChange: (values: string[]) => void;
+    value: StudyPeriod;
+    onChange: (value: StudyPeriod) => void;
 }
 
-const options = [
-    "일주일 이내",
-    "1달 이내",
-    "3달 이내",
-    "6달 이내",
-    "1년 이내",
-    "수강 미완료"
-];
-
-const DurationCheckboxGroup: React.FC<DurationCheckboxGroupProps> = ({ values, onChange }) => {
-    const handleCheck = (option: string, checked: boolean) => {
-        if (checked) {
-            onChange([...values, option]);
-        } else {
-            onChange(values.filter(v => v !== option));
-        }
-    };
+const DurationCheckboxGroup: React.FC<DurationCheckboxGroupProps> = ({ value, onChange }) => {
 
     return (
         <div className="bg-white w-[850px] rounded-[16px] border border-[#B5B5B5] px-[16px] py-[20px] flex flex-col gap-[14px]">
-            {options.map(option => (
-                <label key={option} className="flex items-center gap-[16px] px-[16px] cursor-pointer text-[17px] text-[#2B2B2B]">
+            {studyPeriodOptions.map(option => (
+                <label key={option.value} className="flex items-center gap-[16px] px-[16px] cursor-pointer text-[17px] text-[#2B2B2B]">
                     <input
-                        type="checkbox"
-                        className="hidden peer"
-                        checked={values.includes(option)}
-                        onChange={e => handleCheck(option, e.target.checked)}
+                        type="radio"
+                        className="hidden"
+                        checked={value === option.value}
+                        onChange={() => onChange(option.value)}
                     />
-                    {/* 커스텀 체크박스 */}
                     <span
                         className={`
                             block size-[20px] rounded-[4px] border border-[#B5B5B5]
-                            peer-checked:bg-[#6FA235]
+                            ${value === option.value ? "bg-[#6FA235]" : ""}
                             transition-colors
                         `}
                     />
-                    <p className="text-[18px] font-normal color-[#2B2B2B]">{option}</p>
+                    <p className="text-[18px] font-normal color-[#2B2B2B]">{option.label}</p>
                 </label>
             ))}
         </div>
