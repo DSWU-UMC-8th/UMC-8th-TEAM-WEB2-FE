@@ -3,7 +3,7 @@ import type { StudyPeriod } from "../../../enums/StudyPeriod";
 import { studyPeriodOptions } from "../../../constants/periodOptions";
 
 interface DurationCheckboxGroupProps {
-    value: StudyPeriod;
+    value?: StudyPeriod;
     onChange: (value: StudyPeriod) => void;
 }
 

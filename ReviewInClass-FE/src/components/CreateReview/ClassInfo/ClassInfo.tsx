@@ -1,16 +1,17 @@
-import { useState, useRef, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 import palette from "../../../styles/theme"; 
 import ic_pic from "../../../assets/icon-pic-select.svg"
-import logo from "../../../assets/icon-logo.svg"
 import ic_search from "../../../assets/navbar/icon-navbar-search.svg"
 import CustomInput from "./InputComponent";
 import SearchButton from "./SearchBtn";
 import ImageUploadBox from "./ImageUpload";
 import SearchDropdown from "./SearchDropdown";
+import SectionTitle from "./SectionTitle";
+import FieldLabel from "./FieldLabel";
+import TagBadge from "./TagBadge";
 import type { Lecture, ReviewLectureInfo } from "../../../types/reviewCreate";
 import { searchLectures, searchPlatforms } from "../../../apis/createReview";
-import TagBadge from "./TagBadge";
+import { useSearch } from "../../../hooks/useSearch";
 
 interface ClassInfoProps {
   selectedLecture: Lecture | null;
@@ -37,83 +38,56 @@ const ClassInfo = ({
   imageFile,
   setImageFile,
 }: ClassInfoProps) => {
-    // 강의명 검색 쿼리
-    const [query, setQuery] = useState('');
-    const [isOpen, setIsOpen] = useState(false);
-    const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-    // 플랫폼 검색 쿼리
-    const [platformQuery, setPlatformQuery] = useState('');
-    const [isPlatformOpen, setIsPlatformOpen] = useState(false);
-    const platformTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-    // 강의명 검색 API
-    const { data: searchResults, refetch: searchLecturesQuery } = useQuery({
-        queryKey: ['lectures', query],
-        queryFn: async () => {
-            if (!query) return { result: [] };
-            try {
-                const data = await searchLectures(query);
-                return { result: Array.isArray(data.result) ? data.result : [] };
-            } catch {
-                return { result: [] };
-            }
+    // 강의명 검색
+    const {
+        query,
+        setQuery,
+        isOpen,
+        setIsOpen,
+        searchResults,
+        handleInputChange,
+        handleSearchClick,
+        handleSelect: handleLectureSelect,
+    } = useSearch<Lecture>({
+        searchFn: searchLectures,
+        debounceTime: 500,
+        onSelect: (lecture) => {
+            setSelectedLecture(lecture);
+            setQuery(lecture.name);
+            setManualLecture({
+                name: lecture.name,
+                instructorName: lecture.instructor,
+                platformId: null,
+                level: "BEGINNER",
+                category: "IT",
+            });
+            setPlatformQuery(lecture.platform || "");
+            setSelectedPlatform(lecture.platform ? { id: 0, name: lecture.platform } : null);
         },
-        enabled: false,
     });
 
-    // 플랫폼 검색 API
-    const { data: platformSearchResults, refetch: refetchPlatformSearch } = useQuery({
-        queryKey: ['platforms', platformQuery],
-        queryFn: async () => {
-            if (!platformQuery) return { result: [] };
-            try {
-                const data = await searchPlatforms(platformQuery);
-                return { result: Array.isArray(data.result) ? data.result : [] };
-            } catch {
-                return { result: [] };
-            }
+    // 플랫폼 검색
+    const {
+        query: platformQuery,
+        setQuery: setPlatformQuery,
+        isOpen: isPlatformOpen,
+        setIsOpen: setIsPlatformOpen,
+        searchResults: platformSearchResults,
+        handleInputChange: handlePlatformInputChange,
+        handleSearchClick: handlePlatformSearch,
+        handleSelect: handlePlatformSelect,
+    } = useSearch<{ id: number; name: string }>({
+        searchFn: searchPlatforms,
+        debounceTime: 300,
+        onSelect: (platform) => {
+            setSelectedPlatform(platform);
+            setPlatformQuery(platform.name);
+            setManualLecture({
+                ...manualLecture,
+                platformId: platform.id,
+            });
         },
-        enabled: false,
     });
-
-    // 강의명 검색 input 변경 핸들러
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        setQuery(value);
-        if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
-        if (value.length > 0) {
-            searchTimeoutRef.current = setTimeout(() => {
-                searchLecturesQuery();
-                setIsOpen(true);
-            }, 500);
-        } else {
-            setIsOpen(false);
-        }
-    };
-
-    // 강의명 검색 버튼 클릭 핸들러
-    const handleSearchClick = () => {
-        if (query.length > 0) {
-            searchLecturesQuery();
-            setIsOpen(true);
-        }
-    };
-
-    // 강의 선택 시 자동완성 핸들러
-    const handleLectureSelect = (lecture: Lecture) => {
-        setSelectedLecture(lecture);
-        setQuery(lecture.name);
-        setIsOpen(false);
-        setManualLecture({
-            name: lecture.name,
-            instructorName: lecture.instructor,
-            platformId: null,
-            level: "BEGINNER",
-            category: "IT",
-        });
-        setPlatformQuery(lecture.platform || "");
-        setSelectedPlatform(lecture.platform ? { id: 0, name: lecture.platform } : null);
-    };
 
     // '원하는 강의가 없으신가요?' 클릭 시 수동입력 모드 진입 핸들러
     const handleManualInput = () => {
@@ -122,41 +96,6 @@ const ClassInfo = ({
         setManualLecture({ name: '', instructorName: '', platformId: null, level: 'BEGINNER', category: 'IT' });
         setPlatformQuery('');
         setSelectedPlatform(null);
-    };
-
-    // 플랫폼 검색 input 변경 핸들러
-    const handlePlatformInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        setPlatformQuery(value);
-        if (platformTimeoutRef.current) clearTimeout(platformTimeoutRef.current);
-        if (value.length > 0) {
-            platformTimeoutRef.current = setTimeout(() => {
-                refetchPlatformSearch();
-                setIsPlatformOpen(true);
-            }, 300);
-        } else {
-            setIsPlatformOpen(false);
-            setSelectedPlatform(null);
-        }
-    };
-
-    // 플랫폼 검색 버튼 클릭 핸들러
-    const handlePlatformSearch = () => {
-        if (platformQuery.length > 0) {
-            refetchPlatformSearch();
-            setIsPlatformOpen(true);
-        }
-    };
-
-    // 플랫폼 선택 핸들러
-    const handlePlatformSelect = (platform: { id: number; name: string }) => {
-        setSelectedPlatform(platform);
-        setPlatformQuery(platform.name);
-        setManualLecture({
-            ...manualLecture,
-            platformId: platform.id,
-        });
-        setIsPlatformOpen(false);
     };
 
     // 플랫폼 클리어 핸들러
@@ -168,11 +107,6 @@ const ClassInfo = ({
             platformId: null,
         });
         setIsPlatformOpen(false);
-    };
-
-    // 이미지 업로드 핸들러
-    const handleImageUpload = (file: File | null) => {
-        setImageFile(file);
     };
 
     // 강의 선택 해제 및 입력값 초기화 핸들러
@@ -200,37 +134,23 @@ const ClassInfo = ({
         };
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
+    }, [setIsOpen, setIsPlatformOpen]);
 
     return (
         <div className="flex flex-col justify-center items-center py-8">
             <div className="w-full max-w-3xl rounded-2xl py-10">
-                {/* 강의평 등록 타이틀 */}
-                <h2
-                    className="text-center text-2xl mb-[43px] font-sans text-[40px] font-semibold leading-normal not-italic tracking-[-0.54px]"
-                    style={{ color: palette.gray.gray900 }}
-                >
+                <h2 className="text-center text-2xl mb-[43px] font-sans text-[40px] font-semibold leading-normal not-italic tracking-[-0.54px]"
+                    style={{ color: palette.gray.gray900 }}>
                     강의평 등록
                 </h2>
 
                 {/* 필수 항목 */}
                 <section className="flex flex-col mb-10">
-                    <div className="flex items-center gap-2 text-center mb-[36px]"
-                        style={{ color: palette.gray.gray900 }}>
-                        <span className="size-[35px]">
-                            <img src={logo} alt="로고" className="w-full h-full object-contain"/>
-                        </span>
-                        <p className="font-Inter text-[27px] font-semibold leading-normal 
-                            not-italic tracking-[-0.54px]">
-                            필수 항목
-                        </p>
-                    </div>
+                    <SectionTitle title="필수 항목" isRequired />
                     
                     {/* 강의명 */}
                     <div className="flex flex-col mb-[48px]">
-                        <p className="mb-2 font-medium text-[25px]" style={{ color: palette.gray.gray900 }}>
-                            강의명
-                        </p>
+                        <FieldLabel label="강의명" />
                         <div className="flex flex-col gap-[21px]">
                             <div className="flex gap-[25px]">
                                 {!isManualInput ? (
@@ -246,7 +166,7 @@ const ClassInfo = ({
                                         <SearchButton onClick={handleSearchClick} />
                                     </>
                                 ) : (
-                                    <div className="flex flex-col gap-2 w-full">
+                                    <div className="flex flex-col  gap-[14px] w-[880px]">
                                         <CustomInput
                                             className="w-[880px] text-[17px] px-[24px] py-[15px] rounded-[16px] border"
                                             style={{ borderColor: palette.gray.gray300 }}
@@ -254,19 +174,20 @@ const ClassInfo = ({
                                             value={manualLecture.name}
                                             onChange={e => setManualLecture({ ...manualLecture, name: e.target.value })}
                                         />
-                                        <CustomInput
-                                            className="w-[880px] text-[17px] px-[24px] py-[15px] rounded-[16px] border"
-                                            style={{ borderColor: palette.gray.gray300 }}
-                                            placeholder="강사명을 입력해 주세요."
-                                            value={manualLecture.instructorName}
-                                            onChange={e => setManualLecture({ ...manualLecture, instructorName: e.target.value })}
-                                        />
+                                        
+                                        <button
+                                            type="button"
+                                            className="self-end text-[17px] text-[#2B2B2B] underline cursor-pointer"
+                                            onClick={() => setIsManualInput(false)}
+                                        >
+                                            다시 검색하기
+                                        </button>
                                     </div>
                                 )}
                             </div>
                             <div id="search-dropdown">
                                 <SearchDropdown
-                                    results={searchResults?.result || []}
+                                    results={searchResults}
                                     onSelect={handleLectureSelect}
                                     isOpen={isOpen}
                                     onManualInput={handleManualInput}
@@ -284,18 +205,16 @@ const ClassInfo = ({
 
                     {/* 강사명 */}
                     <div className="mb-[48px]">
-                        <p className="mb-2 font-medium text-[25px]" style={{ color: palette.gray.gray900 }}>
-                            강사명
-                        </p>
+                        <FieldLabel label="강사명" />
                         <CustomInput
-                            className="w-[880px] text-[17px] px-[24px] py-[15px] rounded-[16px] border"
+                            className="w-[880px] text-[17px] px-[24px] py-[15px] border rounded-[16px]"
                             style={{ borderColor: palette.gray.gray300 }}
                             placeholder="강사명을 입력해 주세요. (강의명 검색 시 자동 입력됩니다.)"
                             value={isManualInput ? manualLecture.instructorName : (selectedLecture?.instructor || '')}
                             onChange={isManualInput ? (e => setManualLecture({ ...manualLecture, instructorName: e.target.value })) : undefined}
                             readOnly={!isManualInput}
                         />
-                        <div className="flex items-center w-[880px]">
+                        <div className="flex items-center w-[880px] mt-[10px]">
                             {(selectedLecture?.instructor && !isManualInput) && (
                                 <div className="flex gap-[15px] mt-[19px] w-full">
                                     <div className="flex gap-[5px] items-center justify-center">
@@ -312,9 +231,7 @@ const ClassInfo = ({
                     
                     {/* 플랫폼 */}
                     <div className="flex flex-col">
-                        <p className="mb-2 font-medium text-[25px]" style={{ color: palette.gray.gray900 }}>
-                            플랫폼
-                        </p>
+                        <FieldLabel label="플랫폼" />
                         <div className="flex gap-[25px]">
                             <CustomInput
                                 className="rounded-[55px]"
@@ -327,9 +244,9 @@ const ClassInfo = ({
                             <SearchButton onClick={handlePlatformSearch} />
                         </div>
                         <div id="platform-dropdown" className="relative">
-                            {isPlatformOpen && platformSearchResults?.result && platformSearchResults.result.length > 0 && (
+                            {isPlatformOpen && platformSearchResults.length > 0 && (
                                 <ul className="absolute gap-[15px] w-[760px] mt-[15px] bg-white shadow-2xl rounded-[20px] z-50 max-h-60 overflow-y-auto">
-                                    {platformSearchResults.result.map((platform: { id: number; name: string }) => (
+                                    {platformSearchResults.map((platform) => (
                                         <li
                                             key={platform.id}
                                             className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
@@ -341,7 +258,6 @@ const ClassInfo = ({
                                 </ul>
                             )}
                         </div>
-                        {/* 선택된 플랫폼 뱃지 */}
                         {selectedPlatform && (
                             <div className="flex gap-[15px] mt-[19px] w-full">
                                 <div className="flex gap-[5px] items-center justify-center">
@@ -354,21 +270,11 @@ const ClassInfo = ({
 
                 {/* 선택 항목 */}
                 <section className="flex flex-col mt-[82px]">
-                    <div className="flex items-center gap-2 text-center mb-[32px] font-sans text-[27px] font-semibold leading-normal not-italic tracking-[-0.54px]"
-                        style={{ color: palette.gray.gray900 }}>
-                        <span className="size-[35px]">
-                            <img src={logo} alt="로고" className="w-full h-full object-contain" />
-                        </span>
-                        선택 항목
-                    </div>
-
-                    {/* 강의 사진 등록 */}
-                    <p className="font-medium text-[25px] mb-[39px]" style={{ color: palette.gray.gray900 }}>
-                        강의 사진 등록하기
-                    </p>
+                    <SectionTitle title="선택 항목" />
+                    <FieldLabel label="강의 사진 등록하기" className="mb-[39px]" />
                     <ImageUploadBox 
                         defaultIcon={ic_pic} 
-                        onImageUpload={handleImageUpload}
+                        onImageUpload={setImageFile}
                         currentFile={imageFile}
                     />
                 </section>

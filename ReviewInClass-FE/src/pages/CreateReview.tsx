@@ -2,73 +2,59 @@ import Navbar from "../components/common/Navbar";
 import ClassInfo from "../components/CreateReview/ClassInfo/ClassInfo";
 import WriteReview from "../components/CreateReview/WriteReview/WriteReview";
 import ReviewModal from "../components/CreateReview/ReviewModal";
-import { useState } from "react";
 import { postReview } from "../apis/createReview";
-import type { StudyPeriod } from "../enums/StudyPeriod";
-import type { Lecture, ReviewLectureInfo, ReviewRequest } from "../types/reviewCreate";
-
+import { useReviewForm } from "../hooks/useReviewForm";
+import { useModal } from "../hooks/useModal";
 
 const CreateReview = () => {
-  // ClassInfo
-  const [selectedLecture, setSelectedLecture] = useState<Lecture | null>(null);
-  const [isManualInput, setIsManualInput] = useState(false);
-  const [manualLecture, setManualLecture] = useState<ReviewLectureInfo>({
-    name: "",
-    instructorName: "",
-    platformId: null,
-    level: "BEGINNER",
-    category: "IT"
-  });
-  const [selectedPlatform, setSelectedPlatform] = useState<{ id: number; name: string } | null>(null);
-  const [imageFile, setImageFile] = useState<File | null>(null);
+  const {
+    // ClassInfo
+    selectedLecture,
+    setSelectedLecture,
+    isManualInput,
+    setIsManualInput,
+    manualLecture,
+    setManualLecture,
+    selectedPlatform,
+    setSelectedPlatform,
+    imageFile,
+    setImageFile,
 
-  // WriteReview
-  const [rating, setRating] = useState(0);
-  const [content, setContent] = useState("");
-  const [studyPeriod, setStudyPeriod] = useState<StudyPeriod>("WITHIN_A_WEEK");
+    // WriteReview
+    rating,
+    setRating,
+    content,
+    setContent,
+    studyPeriod,
+    setStudyPeriod,
 
-  // 모달 상태
-  const [modal, setModal] = useState<null | 'success' | 'error' | 'cancel'>(null);
+    // Form 전송
+    getReviewRequest,
+  } = useReviewForm();
+
+  const {
+    modal,
+    showSuccessModal,
+    showErrorModal,
+    showCancelModal,
+    hideModal,
+  } = useModal();
 
   // 등록 버튼 클릭
   const handleSubmit = async () => {
-    const body: ReviewRequest = isManualInput
-      ? {
-          lectureId: null,
-          lecture: manualLecture,
-          platformIds: [null],
-          rating,
-          content,
-          studyPeriod,
-        }
-      : {
-          lectureId: selectedLecture?.id ?? null,
-          lecture: {
-            name: selectedLecture?.name ?? "",
-            instructorName: selectedLecture?.instructor ?? "",
-            platformId: selectedPlatform?.id ?? null,
-            level: "BEGINNER",
-            category: "IT"
-          },
-          platformIds: selectedPlatform ? [selectedPlatform.id] : [null],
-          rating,
-          content,
-          studyPeriod,
-        };
-
     try {
-      const response = await postReview(body, imageFile ?? undefined);
+      const response = await postReview(getReviewRequest(), imageFile ?? undefined);
       console.log('리뷰 등록 성공:', response);
-      setModal('success');
+      showSuccessModal();
     } catch (error) {
       console.error('리뷰 등록 실패:', error);
-      setModal('error');
+      showErrorModal();
     }
   };
 
   // 취소 버튼 클릭
   const handleCancel = () => {
-    setModal('cancel');
+    showCancelModal();
   };
 
   // 모달 확인/취소 핸들러
@@ -76,11 +62,8 @@ const CreateReview = () => {
     if (modal === 'success') {
       window.location.replace("/");
     } else {
-      setModal(null);
+      hideModal();
     }
-  };
-  const handleModalCancel = () => {
-    setModal(null);
   };
 
   return (
@@ -141,7 +124,7 @@ const CreateReview = () => {
           onClickConfirm={handleModalConfirm}
           isCancle={true}
           cancleText="취소"
-          onClickCancle={handleModalCancel}
+          onClickCancle={hideModal}
         />
       )}
     </div>

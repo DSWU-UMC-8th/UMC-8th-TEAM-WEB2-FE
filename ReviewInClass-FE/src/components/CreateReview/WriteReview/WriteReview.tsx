@@ -4,13 +4,14 @@ import ReactQuillEditor from "./TextEditor";
 import RatingSlider from "./RatingSlider";
 import type { StudyPeriod } from "../../../enums/StudyPeriod";
 import DurationCheckboxGroup from "./CheckBoxComponent";
+import { useState } from "react";
 
 interface WriteReviewProps {
     rating: number;
     setRating: (v: number) => void;
     content: string;
     setContent: (v: string) => void;
-    studyPeriod: StudyPeriod;
+    studyPeriod?: StudyPeriod;
     setStudyPeriod: (v: StudyPeriod) => void;
 }
 
@@ -19,9 +20,9 @@ const WriteReview = ({
     setRating,
     content,
     setContent,
-    studyPeriod,
-    setStudyPeriod,
 }: WriteReviewProps) => {
+    const [studyPeriod, setStudyPeriod] = useState<StudyPeriod | undefined>();
+
     const handleEditorChange = (value: string) => {
         setContent(value);
     };

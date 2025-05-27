@@ -31,7 +31,7 @@ const CustomInput = React.forwardRef<HTMLInputElement, CustomInputProps>(
             ${leftIcon ? "px-[70px]" : "px-[16px]"}
             py-[15px] focus:outline-none focus:ring-2 focus:border-[#6FA235]
             transition-shadow
-            rounded-[55px]
+            ${!className.includes('rounded') ? 'rounded-[55px]' : ''}
             ${className}
           `}
           style={{
