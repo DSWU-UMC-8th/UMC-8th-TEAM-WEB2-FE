@@ -3,6 +3,7 @@
 > 추후 수정 예정
 
 
+
 ## ⚒️ 팀원 소개
 
 |              김진효</br>[@jinhyo0](https://github.com/jinhyo0)               |               박소이</br>[@soyyyyy](https://github.com/soyyyyy)                |               김희윤</br>[@heeyun817](https://github.com/heeyun817)                |                김가빈</br>[@gcongK](https://github.com/gcongK)                |
@@ -11,6 +12,22 @@
 |                                   `메인/404페이지/nav/모달`                                    |                              `리뷰 등록`                              |                                      `강의별 리뷰`                                      |                                     `리뷰 목록`                                      |
 
 <br/>
+
+<br/>
+
+## 🛠 기술 스택
+
+| Category             | Stack                                                                                                                                                                                                                         |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Library              | ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)                                                                                                                           |
+| Language             | ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)                                                                                                             |
+| Styling              | ![Tailwindcss](https://img.shields.io/badge/tailwindcss-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)                                                                                                   |
+| Data Fetching        | ![Axios](https://img.shields.io/badge/Axios-5A29E4?style=for-the-badge&logo=Axios&logoColor=white) ![TanStack Query](https://img.shields.io/badge/TanStack_Query-FF4154?style=for-the-badge&logo=react-query&logoColor=white) |
+| Package Manager      | ![Pnpm](https://img.shields.io/badge/pnpm-F69220?style=for-the-badge&logo=pnpm&logoColor=white)                                 
+| Formatting & Linting | ![ESLint](https://img.shields.io/badge/ESLint-4B32C3?style=for-the-badge&logo=eslint&logoColor=white) ![Prettier](https://img.shields.io/badge/Prettier-F7B93E?style=for-the-badge&logo=prettier&logoColor=white)             |
+| Version Control      | ![Git](https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white) ![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)                            |
+                                                                                                                      
+
 <br/>
 
 
