@@ -40,6 +40,7 @@ export type ResponseLectureRatingDto = {
 
 export type Content = {
   reviewId: number;
+  lectureId: number;
   lectureName: string;
   instructorName: string;
   rating: number;

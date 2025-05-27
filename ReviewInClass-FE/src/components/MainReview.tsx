@@ -30,7 +30,7 @@ const MainReview = ({ reviews }: MainReviewProps) => {
           return (
             <div
               key={review.reviewId}
-              onClick={() => handleClickReview(review.reviewId)}
+              onClick={() => handleClickReview(review.lectureId)}
               className="flex flex-col gap-[13px] p-[32px] min-w-[376px] w-full h-[232px] rounded-[24px] rounded-bl-[4px]"
               style={{ background: palette.white }}
             >
