@@ -68,7 +68,7 @@ const Banner = ({ lectures }: BannerProps) => {
       {lectures.map((lecture, idx) => (
         <div key={idx} className="pl-[78px] pr-[78px]">
           <div className="w-full h-[464px] rounded-[25.7px] overflow-hidden relative">
-            <img src={lecture.lecture.imgUrls[0]} className="w-full h-full object-cover object-center" />
+            <img src={lecture.lecture?.imgUrls?.[0] ?? ""} className="w-full h-full object-cover object-center" />
             <div
               className="absolute inset-0 bg-black"
               style={{
@@ -77,11 +77,11 @@ const Banner = ({ lectures }: BannerProps) => {
             ></div>
 
             <div className="absolute bottom-10 left-15 flex flex-col gap-[15px]">
-              <p className="font-semibold text-[45px] leading-[145%] tracking-0 text-white">{lecture.lecture.name}</p>
+              <p className="font-semibold text-[45px] leading-[145%] tracking-0 text-white">{lecture.lecture?.name}</p>
               <div className="flex items-center gap-[19.57px]">
-                <p className="font-medium text-[30px] leading-[100%] tracking-0 text-white">{lecture.lecture.platformName}</p>
+                <p className="font-medium text-[30px] leading-[100%] tracking-0 text-white">{lecture.lecture?.platformName}</p>
                 <div className="w-[1.96px] h-[26px] bg-white"></div>
-                <p className="font-medium text-[30px] leading-[100%] tracking-0 text-white">{lecture.lecture.instructorName}</p>
+                <p className="font-medium text-[30px] leading-[100%] tracking-0 text-white">{lecture.lecture?.instructorName}</p>
               </div>
 
               <div className="flex gap-[12.73px]">

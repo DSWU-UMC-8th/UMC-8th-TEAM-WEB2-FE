@@ -3,19 +3,19 @@ import { useNavigate } from "react-router-dom";
 import Banner from "../components/common/Banner/Banner";
 import MainReview from "../components/MainReview";
 
-import { mainDummyReview as REVIEWS } from "../data/mainDummyReview";
 import { dummyReviews as LATEST } from "../data/dummyReviews";
 
 import palette from "../styles/theme";
 import ReviewCard from "../components/common/ReviewCard";
 import { useEffect, useState } from "react";
-import { getAllLectures } from "../apis/mainPage";
-import type { Lectures } from "../types/mainLectures";
+import { getAllLectures, getPopularReviews } from "../apis/mainPage";
+import type { Content, Lectures } from "../types/mainLectures";
 
 const Main = () => {
   const navigate = useNavigate();
   const [bannerData, setBannerData] = useState<Lectures[]>([]);
   const latestReviews = [...LATEST].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 5);
+  const [popularReviews, setPopularRevies] = useState<Content[]>([]);
 
   const scrollToTop = () => {
     window.scrollTo({
@@ -38,8 +38,11 @@ const Main = () => {
     const getBannerLectures = async () => {
       try {
         const data = await getAllLectures();
-
         setBannerData(data.result);
+
+        const reviewData = await getPopularReviews();
+        setPopularRevies(reviewData.result.content);
+        console.log(reviewData.result.content);
       } catch (error) {
         console.error("배너 데이터 오류", error);
       }
@@ -70,7 +73,7 @@ const Main = () => {
       </div>
 
       <div className="pl-[78px] mt-[20px]">
-        <MainReview reviews={REVIEWS} />
+        <MainReview reviews={popularReviews} />
       </div>
 
       <div className="pl-[78px] pr-[78px] mt-[80px] mb-[80px]">
