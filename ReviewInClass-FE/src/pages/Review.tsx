@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import ReviewCard from "../components/common/ReviewCard";
 import ReviewFilterBar from "../components/ReviewFilterBar";
@@ -14,8 +14,9 @@ import Loading from "../components/Loading";
 
 const Review = () => {
   const [searchParams] = useSearchParams();
-  // const sortType = searchParams.get("sort") || "latest";
-  const [sortType, setSortType] = useState("latest");
+  const urlSort = searchParams.get("sort"); // latest 또는 popular
+
+   const [sortType, setSortType] = useState<"latest" | "popular">("latest"); // 초기값은 그냥 latest
   const [order, setOrder] = useState<"asc" | "desc">("desc");
   const [filters, setFilters] = useState<Filters>({
     category: "",
@@ -24,11 +25,17 @@ const Review = () => {
   });
   const [currentPage, setCurrentPage] = useState(1);
 
+    useEffect(() => {
+      if (urlSort === "popular" || urlSort === "latest") {
+        setSortType(urlSort);
+      }
+    }, [urlSort]);
+
   const { search } = useSearch();
   const isSearchMode = typeof search === "string" && search.trim() !== "";
 
   const searchResult = useSearchList(currentPage);
-  const reviewResult = useReviewList(sortType, filters, currentPage);
+  const reviewResult = useReviewList(sortType, filters, currentPage, order);
 
   const {
     data: reviews = [],
@@ -88,6 +95,10 @@ const Review = () => {
         sortType={sortType}
         order={order}
         onToggleOrder={toggleOrder}
+          onChangeSortType={(type) => {
+    setSortType(type);         // ✅ 인기순, 최신순 반영
+    setCurrentPage(1);         // 페이지 초기화
+  }}
       />
 
       <div className="space-y-4">

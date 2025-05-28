@@ -12,6 +12,7 @@ type Props = {
   sortType: string;
   order: "asc" | "desc";
   onToggleOrder: () => void;
+  onChangeSortType: (type: string) => void; 
 };
 
 const ReviewFilterBar = ({
@@ -19,6 +20,7 @@ const ReviewFilterBar = ({
   sortType,
   order,
   onToggleOrder,
+  onChangeSortType,
 }: Props) => {
   const [category, setCategory] = useState("");
   const [level, setLevel] = useState("");
@@ -34,6 +36,16 @@ const ReviewFilterBar = ({
     setPeriod("");
     onSearch({ category: "", level: "", period: "" });
   }
+
+    const getSortLabel = () => {
+    if (sortType === "latest") {
+      return order === "desc" ? "최신순" : "오래된순";
+    } else if (sortType === "popular") {
+      return order === "desc" ? "인기순" : "인기 낮은 순";
+    } else {
+      return "";
+    }
+  };
 
   return (
     <div className="flex items-center justify-between py-4">
@@ -78,26 +90,23 @@ const ReviewFilterBar = ({
         <button onClick={handleReset} style={{cursor: "pointer"}} className="border px-3 py-1 rounded text-sm text-gray-700 border-none bg-gray-300">초기화</button>
       </div>
 
-      {/* 정렬 버튼 */}
-      <button
-        onClick={onToggleOrder}
-        className="text-sm text-gray-700 flex items-center"
-      >
-        <span className="flex items-center gap-1">
-          {sortType === "latest"
-            ? order === "desc"
-              ? "최신순"
-              : "오래된순"
-            : order === "desc"
-            ? "인기순"
-            : "인기 낮은 순"}
-          <img
-            src={SwapArrowIcon}
-            alt="정렬 방향"
-            className={`w-4 h-4 transition-transform ${order === "desc" ? "rotate-180" : ""}`}
-          />
-        </span>
-      </button>
+{/* ✅ 정렬 버튼 하나 */}
+<button
+  onClick={onToggleOrder}
+  className="text-sm text-gray-700 flex items-center"
+>
+  <span className="flex items-center gap-1">
+    {sortType === "latest"
+      ? order === "desc" ? "최신순" : "오래된순"
+      : order === "desc" ? "인기순" : "인기 낮은 순"}
+    <img
+      src={SwapArrowIcon}
+      alt="정렬 방향"
+      className={`w-4 h-4 transition-transform ${order === "desc" ? "rotate-180" : ""}`}
+    />
+  </span>
+</button>
+
     </div>
   );
 };

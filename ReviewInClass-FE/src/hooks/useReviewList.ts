@@ -6,7 +6,8 @@ import { categoryMap, levelMap, periodMap } from "../utils/filterMap";
 const useReviewList = (
   sortType: string,
   filters: Filters,
-  currentPage: number
+  currentPage: number,
+  order: "asc" | "desc",
 ) => {
   const [data, setData] = useState<any[]>([]);
   const [isLoading, setLoading] = useState(true);
@@ -27,18 +28,18 @@ const useReviewList = (
 
         if (sortType === "latest") {
           res = await axios.get(`${BASE_URL}/api/reviews/latest`, {
-            params: { page: currentPage },
+            params: { page: currentPage, order },
           });
           setData(res.data?.result?.content ?? []);
           setTotalPages(res.data?.result?.totalPages ?? 1);
           setTotalCount(res.data?.result?.totalElements ?? 0);
         } else if (sortType === "popular") {
           res = await axios.get(`${BASE_URL}/api/reviews/popular`, {
-            params: { page: currentPage },
+            params: { page: currentPage, order },
           });
           setData(res.data?.result?.content ?? []);
           setTotalPages(res.data?.result?.totalPages ?? 1);
-          setTotalCount(res.data?.result?.totalElements ?? 0); // ✅ 전체 수 저장
+          setTotalCount(res.data?.result?.totalElements ?? 0);
         } else {
           res = await axios.get(`${BASE_URL}/api/reviews/filter`, {
             params: {
@@ -49,8 +50,8 @@ const useReviewList = (
           });
           const filtered = res.data?.result ?? [];
           setData(filtered);
-          setTotalPages(1); // 고정
-          setTotalCount(filtered.length); // ✅ 전체 수 직접 세기
+          setTotalPages(1);
+          setTotalCount(filtered.length);
         }
 
         } catch (e) {
@@ -62,7 +63,7 @@ const useReviewList = (
 
 
     fetchData();
-  }, [sortType, filters, currentPage]);
+  }, [sortType, filters, currentPage, order]);
 
   return { data, isLoading, isError, totalPages, totalCount  };
 };
