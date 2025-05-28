@@ -3,19 +3,16 @@ import { useNavigate } from "react-router-dom";
 import Banner from "../components/common/Banner/Banner";
 import MainReview from "../components/MainReview";
 
-import { LECTURE } from "../data/banner";
-import { mainDummyReview as REVIEWS } from "../data/mainDummyReview";
-import { dummyReviews as LATEST } from "../data/dummyReviews";
-
 import palette from "../styles/theme";
 import ReviewCard from "../components/common/ReviewCard";
+import { useEffect, useState } from "react";
+import { getLatestReviews, getPopularReviews } from "../apis/mainPage";
+import type { Content, LatestContent } from "../types/mainLectures";
 
 const Main = () => {
   const navigate = useNavigate();
-
-  const latestReviews = [...LATEST]
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    .slice(0, 5);
+  const [popularReviews, setPopularRevies] = useState<Content[]>([]);
+  const [latestReviews, setLatestReviews] = useState<LatestContent[]>([]);
 
   const scrollToTop = () => {
     window.scrollTo({
@@ -34,16 +31,29 @@ const Main = () => {
     navigate("review?sort=latest");
   };
 
+  useEffect(() => {
+    const getBannerLectures = async () => {
+      try {
+        const reviewData = await getPopularReviews();
+        setPopularRevies(reviewData.result.content);
+
+        const latestReviewData = await getLatestReviews(0);
+        setLatestReviews(latestReviewData.result.content);
+      } catch (error) {
+        console.error("배너 데이터 오류", error);
+      }
+    };
+
+    getBannerLectures();
+  }, []);
+
   return (
     <div className="mt-[40px]">
-      <Banner lectures={LECTURE.slice(0, 4)} />
+      <Banner />
 
       <div className="pl-[78px] pr-[78px] mt-[80px]">
         <div className="flex justify-between">
-          <h3
-            className="font-medium text-[25px] leading-[100%] tracking-[0%]"
-            style={{ color: palette.gray.gray900 }}
-          >
+          <h3 className="font-medium text-[25px] leading-[100%] tracking-[0%]" style={{ color: palette.gray.gray900 }}>
             인기 리뷰
           </h3>
           <div
@@ -57,15 +67,12 @@ const Main = () => {
       </div>
 
       <div className="pl-[78px] mt-[20px]">
-        <MainReview reviews={REVIEWS} />
+        <MainReview reviews={popularReviews} />
       </div>
 
       <div className="pl-[78px] pr-[78px] mt-[80px] mb-[80px]">
         <div className="flex justify-between">
-          <h3
-            className="font-medium text-[25px] leading-[100%] tracking-[0%]"
-            style={{ color: palette.gray.gray900 }}
-          >
+          <h3 className="font-medium text-[25px] leading-[100%] tracking-[0%]" style={{ color: palette.gray.gray900 }}>
             최신 리뷰
           </h3>
           <div
@@ -79,7 +86,7 @@ const Main = () => {
 
         <div className="mt-[20px] flex flex-col gap-[30px]">
           {latestReviews.map((review) => {
-            return <ReviewCard {...review} key={review.id} />;
+            return <ReviewCard {...review} key={review.reviewId} />;
           })}
         </div>
       </div>
