@@ -154,7 +154,7 @@ const Detail = () => {
           <button
             onClick={() => handlePageClick(currentPage - 1)}
             disabled={currentPage === 0}
-            className="px-2 py-1 rounded disabled:opacity-30"
+            className="px-3 py-1 rounded disabled:opacity-30"
             style={{
               color: palette.primary.primaryDark,
               backgroundColor: palette.primary.primaryLight,
@@ -187,7 +187,7 @@ const Detail = () => {
           <button
             onClick={() => handlePageClick(currentPage + 1)}
             disabled={currentPage >= totalPage - 1}
-            className="px-2 py-1 rounded disabled:opacity-30"
+            className="px-3 py-1 rounded disabled:opacity-30"
             style={{
               color: palette.primary.primaryDark,
               backgroundColor: palette.primary.primaryLight,
