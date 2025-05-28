@@ -38,7 +38,7 @@ const Banner = () => {
       try {
         const data = await getAllLectures();
 
-        const shuffled = [...data.result].sort(() => Math.random() - 0.5).slice(0, 5);
+        const shuffled = [...data.result].sort(() => Math.random() - 0.5).slice(0, 4);
         setShuffledLectures(shuffled);
       } catch (error) {
         console.error("배너 데이터 오류", error);
