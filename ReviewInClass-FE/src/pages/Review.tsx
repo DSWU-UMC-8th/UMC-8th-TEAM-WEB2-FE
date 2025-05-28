@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import ReviewCard from "../components/common/ReviewCard";
 import ReviewFilterBar from "../components/ReviewFilterBar";
 import type { Filters } from "../components/ReviewFilterBar";
 import MiniBanner from "../components/common/Banner/MiniBanner";
 import { LECTURE } from "../data/banner";
+import useReviewList from "../hooks/useReviewList";
 import useSearchList from "../hooks/useSearchList";
 import NoResult from "../components/NoResult";
 import { useSearch } from "../context/SearchContext";
@@ -12,130 +13,158 @@ import palette from "../styles/theme";
 import Loading from "../components/Loading";
 
 const Review = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const sortType = searchParams.get("sort") || "latest"; // 'latest' 또는 'popular'
+  const [searchParams] = useSearchParams();
+  const urlSort = searchParams.get("sort"); // latest 또는 popular
+
+   const [sortType, setSortType] = useState<"latest" | "popular">("latest"); // 초기값은 그냥 latest
   const [order, setOrder] = useState<"asc" | "desc">("desc");
   const [filters, setFilters] = useState<Filters>({
     category: "",
     level: "",
     period: "",
   });
-
   const [currentPage, setCurrentPage] = useState(1);
+
+    useEffect(() => {
+      if (urlSort === "popular" || urlSort === "latest") {
+        setSortType(urlSort);
+      }
+    }, [urlSort]);
+
+  const { search } = useSearch();
+  const isSearchMode = typeof search === "string" && search.trim() !== "";
+
+  const searchResult = useSearchList(currentPage);
+  const reviewResult = useReviewList(sortType, filters, currentPage, order);
+
+  const {
+    data: reviews = [],
+    isLoading,
+    isError,
+    totalPages: _totalPages,
+  } = isSearchMode ? searchResult : reviewResult;
+
+  const totalPages = isSearchMode ? 1 : _totalPages;
+
   const reviewsPerPage = 5;
 
-  const toggleOrder = () => {
-    setOrder((prev) => (prev === "desc" ? "asc" : "desc"));
-  };
+  const safeTotalPages =
+    sortType === "latest" || sortType === "popular"
+      ? totalPages
+      : Math.ceil(reviews.length / reviewsPerPage);
 
-  // 검색
-  const { data: searchedReview = [], isLoading, isError } = useSearchList(currentPage);
-  const { search } = useSearch();
+    if (isLoading) return <Loading />;
+    if (!reviews.length) return <NoResult />;
+    // if (isError) return <div>에러 발생</div>;
 
-  if (isLoading) return <Loading />;
-  if (isError) return <div>에러</div>;
-  if (searchedReview.length === 0) return <NoResult />;
-
-  // 정렬
-  const sortedReviews = [...searchedReview].sort((a, b) => {
-    if (sortType === "latest") {
-      const dateA = new Date(a.createdAt).getTime();
-      const dateB = new Date(b.createdAt).getTime();
-      return order === "desc" ? dateB - dateA : dateA - dateB;
-    } else if (sortType === "popular") {
-      return order === "desc" ? b.likeCount - a.likeCount : a.likeCount - b.likeCount;
-    }
-    return 0;
-  });
-
-  // 필터링 우선순위 기준
   const periodPriority: { [key: string]: number } = {
     "일주일 이내": 1,
     "1달 이내": 2,
     "3달 이내": 3,
     "6달 이내": 4,
     "1년 이내": 5,
+    "수강 미완료": 6,
   };
 
-  // 필터링
-  const filteredReviews = sortedReviews.filter((review) => {
-    const matchCategory = !filters.category || review.category === filters.category;
+  const paginatedReviews =
+    isSearchMode || sortType === "filter"
+      ? reviews.slice((currentPage - 1) * reviewsPerPage, currentPage * reviewsPerPage)
+      : reviews;
 
-    const matchLevel = !filters.level || review.level === filters.level;
 
-    const reviewPeriodRank = periodPriority[review.studyPeriod] ?? Infinity;
-    const filterPeriodRank = periodPriority[filters.period] ?? Infinity;
-
-    const matchPeriod = !filters.period || reviewPeriodRank <= filterPeriodRank;
-
-    return matchCategory && matchLevel && matchPeriod;
-  });
-
-  const totalPages = Math.ceil(filteredReviews.length / reviewsPerPage);
-  const paginatedReviews = filteredReviews.slice((currentPage - 1) * reviewsPerPage, currentPage * reviewsPerPage);
+  const toggleOrder = () => {
+    setOrder((prev) => (prev === "desc" ? "asc" : "desc"));
+  };
 
   return (
     <div className="px-8 py-6">
-      {/* 검색어 유무에 따라 배너 or 메시지 */}
       {!search && <MiniBanner lectures={LECTURE.slice(0, 4)} />}
       {search && (
         <p className="text-center font-semibold text-[25px] leading-[33.66px] tracking-[-0.01em]">
-          <span style={{ color: palette.secondary.secondaryDark }}>{search}</span>에 대한 {searchedReview.length}개의 검색 결과가 있습니다.
+          <span style={{ color: palette.secondary.secondaryDark }}>{search}</span>
+          에 대한 {reviews.length}개의 검색 결과가 있습니다.
         </p>
       )}
 
-      {/* 정렬 기능 포함된 필터바 */}
-      <ReviewFilterBar onSearch={setFilters} sortType={sortType} order={order} onToggleOrder={toggleOrder} />
+      <ReviewFilterBar
+        onSearch={(newFilters) => {
+          setFilters(newFilters);        // 필터 상태 저장
+          setSortType("filter");         // 정렬 기준을 'filter'로 변경 (useReviewList에서 인식)
+          setCurrentPage(1);             // 새 검색이니까 페이지 1로 초기화
+        }}
+        sortType={sortType}
+        order={order}
+        onToggleOrder={toggleOrder}
+          onChangeSortType={(type) => {
+    setSortType(type);         // ✅ 인기순, 최신순 반영
+    setCurrentPage(1);         // 페이지 초기화
+  }}
+      />
 
       <div className="space-y-4">
         {paginatedReviews.map((review) => (
-          <ReviewCard key={review.id} {...review} />
+        <ReviewCard
+          key={review.reviewId}
+          rating={review.rating}
+          createdAt={review.createdAt ?? "날짜 없음"}
+          studyPeriod={review.studyPeriod ?? "기간 정보 없음"}
+          likeCount={review.likes ?? 0}
+          content={review.content ?? "내용 없음"}
+          imageUrl={review.imageUrl ?? ""}
+          profileImage={review.profileImage ?? ""}
+          category={review.category ?? "카테고리 없음"}
+          level={review.level ?? "레벨 없음"}
+          teacher={review.instructorName ?? "강사 정보 없음"}
+        />
         ))}
       </div>
 
       {/* Pagination */}
       <div className="flex justify-center mt-8 gap-2">
-        {/* 이전 버튼 */}
         <button
           disabled={currentPage === 1}
-          onClick={() => setCurrentPage((prev) => prev - 1)}
+          onClick={() => {if (currentPage > 1) setCurrentPage(currentPage - 1);}}
+          className="px-3 py-1 rounded border"
           style={{
-            backgroundColor: currentPage === 1 ? "#E9E9E9" : "#CAE3A5", // gray200 or primaryLight
-            color: currentPage === 1 ? "#B5B5B5" : "#6FA235", // gray500 or primaryDark
+            backgroundColor: currentPage === 1 ? "#E9E9E9" : "#CAE3A5",
+            color: currentPage === 1 ? "#B5B5B5" : "#6FA235",
             cursor: currentPage === 1 ? "not-allowed" : "pointer",
           }}
-          className="px-3 py-1 rounded border"
         >
           &lt;
         </button>
 
-        {/* 페이지 번호 */}
-        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-          <button
-            key={page}
-            onClick={() => setCurrentPage(page)}
-            style={{
-              backgroundColor: "#ffffff",
-              border: page === currentPage ? "1p x solid #6FA235" : "1px solid #CAE3A5",
-              color: "#6FA235",
-              fontWeight: page === currentPage ? "bold" : "normal",
-            }}
-            className="px-3 py-1 rounded"
-          >
-            {page}
-          </button>
+        {Array.from({ length: safeTotalPages }, (_, i) => i + 1)
+          .filter((page) => page <= safeTotalPages)
+          .map((page) => (
+            <button
+              key={page}
+              onClick={() => setCurrentPage(page)}
+              className="px-3 py-1 rounded"
+              style={{
+                backgroundColor: "#ffffff",
+                border:
+                  page === currentPage
+                    ? "1px solid #6FA235"
+                    : "1px solid #CAE3A5",
+                color: "#6FA235",
+                fontWeight: page === currentPage ? "bold" : "normal",
+                cursor: "pointer",
+              }}
+            >
+              {page}
+            </button>
         ))}
 
-        {/* 다음 버튼 */}
         <button
-          disabled={currentPage === totalPages}
-          onClick={() => setCurrentPage((prev) => prev + 1)}
-          style={{
-            backgroundColor: currentPage === totalPages ? "#E9E9E9" : "#CAE3A5",
-            color: currentPage === totalPages ? "#B5B5B5" : "#6FA235",
-            cursor: currentPage === totalPages ? "not-allowed" : "pointer",
-          }}
+          disabled={currentPage === safeTotalPages}
+          onClick={() => {if (currentPage < safeTotalPages) setCurrentPage(currentPage + 1);}}
           className="px-3 py-1 rounded border"
+          style={{
+            backgroundColor: currentPage === safeTotalPages ? "#E9E9E9" : "#CAE3A5",
+            color: currentPage === safeTotalPages ? "#B5B5B5" : "#6FA235",
+            cursor: currentPage === safeTotalPages ? "not-allowed" : "pointer",
+          }}
         >
           &gt;
         </button>

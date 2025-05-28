@@ -40,7 +40,7 @@ const ReviewCard = ({
             className="w-8 h-8 rounded-full object-cover"
           />
           <div className="flex items-center gap-1 text-[14px]">
-            <Star star={parseFloat(rating)} width={16} gap={4} />
+            <Star star={parseFloat(String(rating ?? "0"))} width={16} gap={4} />
           </div>
         </div>
         <span className="text-gray-500">{createdAt}</span>
