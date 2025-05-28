@@ -1,6 +1,12 @@
 import React, {useState} from "react";
 import SwapArrowIcon from "../assets/arrow/icon-arrow-swap_vert.svg";
 
+export type Filters = {
+  category: string;
+  level: string;
+  period: string;
+};
+
 type Props = {
   onSearch: (filters: Filters) => void;
   sortType: string;
@@ -98,8 +104,3 @@ const ReviewFilterBar = ({
 
 export default ReviewFilterBar;
 
-export type Filters = {
-  category: string;
-  level: string;
-  period: string;
-};

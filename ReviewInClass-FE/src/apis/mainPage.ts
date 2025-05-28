@@ -17,7 +17,7 @@ export const getLectureRating = async (lectureId: number): Promise<ResponseLectu
 
 // 인기 리뷰
 export const getPopularReviews = async (): Promise<ResponsePopularReviewDto> => {
-  const { data } = await axiosInstance.get("api/reviews/popular", {
+  const { data } = await axiosInstance.get("/api/reviews/popular", {
     params: { page: 0 },
   });
 
@@ -26,7 +26,7 @@ export const getPopularReviews = async (): Promise<ResponsePopularReviewDto> => 
 
 // 최신 리뷰
 export const getLatestReviews = async (page: number): Promise<ResponseLatestReviewDto> => {
-  const { data } = await axiosInstance.get("api/reviews/latest", {
+  const { data } = await axiosInstance.get("/api/reviews/latest", {
     params: { page: `${page}` },
   });
 
