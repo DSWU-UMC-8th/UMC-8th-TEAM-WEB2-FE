@@ -10,6 +10,7 @@ import type { Rates, ResponseLectureRatingDto } from "../types/mainLectures";
 import type { Review } from "../types/detailPage";
 import { getLectureRating } from "../apis/mainPage";
 import { getLectureReviews } from "../apis/detailPage";
+import palette from "../styles/theme";
 
 const Detail = () => {
   const { id } = useParams<{ id: string }>();
@@ -149,12 +150,15 @@ const Detail = () => {
           )}
         </div>
 
-        {/* ✅ 페이지네이션 UI */}
         <div className="flex justify-center mt-8 space-x-2">
           <button
             onClick={() => handlePageClick(currentPage - 1)}
             disabled={currentPage === 0}
-            className="px-2 py-1 rounded bg-green-100 disabled:opacity-30"
+            className="px-2 py-1 rounded disabled:opacity-30"
+            style={{
+              color: palette.primary.primaryDark,
+              backgroundColor: palette.primary.primaryLight,
+            }}
           >
             {"<"}
           </button>
@@ -162,9 +166,20 @@ const Detail = () => {
             <button
               key={i}
               onClick={() => handlePageClick(i)}
-              className={`px-3 py-1 rounded ${
-                i === currentPage ? "bg-green-300 font-bold" : "bg-green-100"
-              }`}
+              className={`px-3 py-1 rounded`}
+              style={{
+                borderColor:
+                  i === currentPage
+                    ? palette.primary.primaryDark
+                    : palette.primary.primary,
+                color:
+                  i === currentPage
+                    ? palette.primary.primaryDark
+                    : palette.gray.gray500,
+                borderWidth: "2px",
+                fontWeight: i === currentPage ? "bold" : "normal",
+                backgroundColor: "#ffffff",
+              }}
             >
               {i + 1}
             </button>
@@ -172,7 +187,11 @@ const Detail = () => {
           <button
             onClick={() => handlePageClick(currentPage + 1)}
             disabled={currentPage >= totalPage - 1}
-            className="px-2 py-1 rounded bg-green-100 disabled:opacity-30"
+            className="px-2 py-1 rounded disabled:opacity-30"
+            style={{
+              color: palette.primary.primaryDark,
+              backgroundColor: palette.primary.primaryLight,
+            }}
           >
             {">"}
           </button>
