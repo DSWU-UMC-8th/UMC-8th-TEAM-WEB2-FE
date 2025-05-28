@@ -1,18 +1,26 @@
-export type Rating = {
-  averageRating: number;
-  reviewCount: number;
-  ratingDistribution: {
-    "1": number;
-    "2": number;
-    "3": number;
-    "4": number;
-    "5": number;
-  };
+export type Review = {
+  reviewId: number;
+  content: string;
+  rating: number;
+  period: string;
+  likes: number;
+  imageUrl: string | null;
+  createdAt: string;
 };
 
-export type ResponseLectureRatingDto = {
+export type LectureReviews = {
+  reviews: Review[];
+  totalMatchingReviews: number;
+  listSize: number;
+  totalPage: number;
+  totalElements: number;
+  isFirst: boolean;
+  isLast: boolean;
+};
+
+export type ResponseLectureReviewsDto = {
   isSuccess: boolean;
   code: string;
   message: string;
-  result: Rating;
+  result: LectureReviews;
 };
