@@ -3,18 +3,16 @@ import { useNavigate } from "react-router-dom";
 import Banner from "../components/common/Banner/Banner";
 import MainReview from "../components/MainReview";
 
-import { dummyReviews as LATEST } from "../data/dummyReviews";
-
 import palette from "../styles/theme";
 import ReviewCard from "../components/common/ReviewCard";
 import { useEffect, useState } from "react";
-import { getPopularReviews } from "../apis/mainPage";
-import type { Content } from "../types/mainLectures";
+import { getLatestReviews, getPopularReviews } from "../apis/mainPage";
+import type { Content, LatestContent } from "../types/mainLectures";
 
 const Main = () => {
   const navigate = useNavigate();
-  const latestReviews = [...LATEST].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 5);
   const [popularReviews, setPopularRevies] = useState<Content[]>([]);
+  const [latestReviews, setLatestReviews] = useState<LatestContent[]>([]);
 
   const scrollToTop = () => {
     window.scrollTo({
@@ -38,7 +36,9 @@ const Main = () => {
       try {
         const reviewData = await getPopularReviews();
         setPopularRevies(reviewData.result.content);
-        console.log(reviewData.result.content);
+
+        const latestReviewData = await getLatestReviews(0);
+        setLatestReviews(latestReviewData.result.content);
       } catch (error) {
         console.error("배너 데이터 오류", error);
       }
@@ -86,7 +86,7 @@ const Main = () => {
 
         <div className="mt-[20px] flex flex-col gap-[30px]">
           {latestReviews.map((review) => {
-            return <ReviewCard {...review} key={review.id} />;
+            return <ReviewCard {...review} key={review.reviewId} />;
           })}
         </div>
       </div>

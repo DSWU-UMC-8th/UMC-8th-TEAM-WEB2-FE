@@ -40,6 +40,7 @@ export type ResponseLectureRatingDto = {
 
 export type Content = {
   reviewId: number;
+  lectureId: number;
   lectureName: string;
   instructorName: string;
   rating: number;
@@ -53,6 +54,50 @@ export type ResponsePopularReviewDto = {
   message: string;
   result: {
     content: Content[];
+    pageable: {
+      sort: {
+        empty: boolean;
+        sorted: boolean;
+        unsorted: boolean;
+      };
+      offset: number;
+      pageSize: number;
+      pageNumber: number;
+      paged: boolean;
+      unpaged: boolean;
+    };
+    last: true;
+    totalPages: number;
+    totalElements: number;
+    size: number;
+    number: number;
+    sort: {
+      empty: boolean;
+      sorted: boolean;
+      unsorted: boolean;
+    };
+    first: boolean;
+    numberOfElements: number;
+    empty: boolean;
+  };
+};
+
+export type LatestContent = {
+  reviewId: number;
+  lectureId: number;
+  rating: number;
+  studyPeriod: string;
+  likes: number;
+  content: string;
+  createdAt: string;
+};
+
+export type ResponseLatestReviewDto = {
+  isSuccess: boolean;
+  code: string;
+  message: string;
+  result: {
+    content: LatestContent[];
     pageable: {
       sort: {
         empty: boolean;

@@ -29,7 +29,7 @@ const Review = () => {
   };
 
   // 검색
-  const { data: searchedReview = [], isLoading, isError } = useSearchList();
+  const { data: searchedReview = [], isLoading, isError } = useSearchList(currentPage);
   const { search } = useSearch();
 
   if (isLoading) return <Loading />;
@@ -72,29 +72,20 @@ const Review = () => {
   });
 
   const totalPages = Math.ceil(filteredReviews.length / reviewsPerPage);
-  const paginatedReviews = filteredReviews.slice(
-    (currentPage - 1) * reviewsPerPage,
-    currentPage * reviewsPerPage
-  );
+  const paginatedReviews = filteredReviews.slice((currentPage - 1) * reviewsPerPage, currentPage * reviewsPerPage);
 
-return (
-  <div className="px-8 py-6">
-    {/* 검색어 유무에 따라 배너 or 메시지 */}
-    {!search && <MiniBanner lectures={LECTURE.slice(0, 4)} />}
-    {search && (
-      <p className="text-center font-semibold text-[25px] leading-[33.66px] tracking-[-0.01em]">
-        <span style={{ color: palette.secondary.secondaryDark }}>{search}</span>에 대한{" "}
-        {searchedReview.length}개의 검색 결과가 있습니다.
-      </p>
-    )}
+  return (
+    <div className="px-8 py-6">
+      {/* 검색어 유무에 따라 배너 or 메시지 */}
+      {!search && <MiniBanner lectures={LECTURE.slice(0, 4)} />}
+      {search && (
+        <p className="text-center font-semibold text-[25px] leading-[33.66px] tracking-[-0.01em]">
+          <span style={{ color: palette.secondary.secondaryDark }}>{search}</span>에 대한 {searchedReview.length}개의 검색 결과가 있습니다.
+        </p>
+      )}
 
-    {/* 정렬 기능 포함된 필터바 */}
-    <ReviewFilterBar
-      onSearch={setFilters}
-      sortType={sortType}
-      order={order}
-      onToggleOrder={toggleOrder}
-    />
+      {/* 정렬 기능 포함된 필터바 */}
+      <ReviewFilterBar onSearch={setFilters} sortType={sortType} order={order} onToggleOrder={toggleOrder} />
 
       <div className="space-y-4">
         {paginatedReviews.map((review) => (
