@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import Banner from "../components/common/Banner/Banner";
-import LectureReviewFilterBar, {
-  type Filters,
-} from "../components/LectureReviewFilterBar";
+import LectureReviewFilterBar, { type Filters } from "../components/LectureReviewFilterBar";
 import ReviewCard from "../components/common/ReviewCard";
 import RatingSummary from "../components/RatingSummary";
 import type { Rates, ResponseLectureRatingDto } from "../types/mainLectures";
@@ -41,9 +39,7 @@ const Detail = () => {
     if (lectureId) {
       const fetchRating = async () => {
         try {
-          const res: ResponseLectureRatingDto = await getLectureRating(
-            lectureId
-          );
+          const res: ResponseLectureRatingDto = await getLectureRating(lectureId);
           if (res.isSuccess && res.result) {
             setRatingData(res.result);
           }
@@ -92,7 +88,7 @@ const Detail = () => {
 
   return (
     <div>
-      <Banner />
+      <Banner targetId={lectureId} />
       <div className="max-w-[995px] mx-auto mt-[137px]">
         <RatingSummary
           average={ratingData?.averageRating ?? 0}
@@ -123,10 +119,7 @@ const Detail = () => {
       </div>
 
       <div className="px-8 py-6">
-        <LectureReviewFilterBar
-          onSearch={handleSearch}
-          resultCount={totalReviews}
-        />
+        <LectureReviewFilterBar onSearch={handleSearch} resultCount={totalReviews} />
 
         <div className="space-y-4 mt-6">
           {reviews.length > 0 ? (
@@ -168,14 +161,8 @@ const Detail = () => {
               onClick={() => handlePageClick(i)}
               className={`px-3 py-1 rounded`}
               style={{
-                borderColor:
-                  i === currentPage
-                    ? palette.primary.primaryDark
-                    : palette.primary.primary,
-                color:
-                  i === currentPage
-                    ? palette.primary.primaryDark
-                    : palette.gray.gray500,
+                borderColor: i === currentPage ? palette.primary.primaryDark : palette.primary.primary,
+                color: i === currentPage ? palette.primary.primaryDark : palette.gray.gray500,
                 borderWidth: "2px",
                 fontWeight: i === currentPage ? "bold" : "normal",
                 backgroundColor: "#ffffff",
