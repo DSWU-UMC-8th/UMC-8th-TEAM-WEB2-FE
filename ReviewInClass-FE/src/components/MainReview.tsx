@@ -3,22 +3,13 @@ import Star from "./common/Star";
 import Profile from "../assets/profile.png";
 import palette from "../styles/theme";
 import { useNavigate } from "react-router-dom";
-
-interface Review {
-  id: number; // 리뷰 id
-  title: string; // 강의명
-  rating: number; // 별점
-  content: string; // 리뷰 내용
-  name: string; // 강사명
-  lectureId: number; // 강의 id
-}
+import type { Content } from "../types/mainLectures";
 
 interface MainReviewProps {
-  reviews: Review[];
+  reviews: Content[];
 }
 
 const MainReview = ({ reviews }: MainReviewProps) => {
-  const sortedReview = [...reviews].sort((a, b) => b.rating - a.rating).slice(0, 5); // 별점 높은 순 5개
   const navigate = useNavigate();
 
   const scrollToTop = () => {
@@ -27,7 +18,6 @@ const MainReview = ({ reviews }: MainReviewProps) => {
       behavior: "smooth",
     });
   };
-
   const handleClickReview = (lectureId: number) => {
     scrollToTop();
     navigate(`/review/${lectureId}`);
@@ -35,21 +25,16 @@ const MainReview = ({ reviews }: MainReviewProps) => {
 
   return (
     <>
-      <div
-        className="flex gap-[24px] w-full overflow-x-scroll cursor-pointer"
-        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-      >
-        {sortedReview.map((review) => {
+      <div className="flex gap-[24px] w-full overflow-x-scroll cursor-pointer" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
+        {reviews.map((review) => {
           return (
             <div
-              key={review.id}
+              key={review.reviewId}
               onClick={() => handleClickReview(review.lectureId)}
               className="flex flex-col gap-[13px] p-[32px] min-w-[376px] w-full h-[232px] rounded-[24px] rounded-bl-[4px]"
               style={{ background: palette.white }}
             >
-              <div className="font-semibold text-[20px] leading-[33.66px] tracking-[-0.01em]">
-                {review.title}
-              </div>
+              <div className="font-semibold text-[20px] leading-[33.66px] tracking-[-0.01em]">{review.lectureName}</div>
               <Star star={review.rating} width={25.4} gap={8.89} />
 
               <p
@@ -63,15 +48,9 @@ const MainReview = ({ reviews }: MainReviewProps) => {
 
               <div className="flex gap-[12px] items-center">
                 <div className="w-[48px] h-[48px] rounded-[50%] overflow-hidden">
-                  <img
-                    src={Profile}
-                    alt="강사사진"
-                    className="w-full h-full object-cover"
-                  />
+                  <img src={Profile} alt="강사사진" className="w-full h-full object-cover" />
                 </div>
-                <div className="font-semibold text-[15px] leading-[33.66px] tracking-[-1%]">
-                  {review.name}
-                </div>
+                <div className="font-semibold text-[15px] leading-[33.66px] tracking-[-1%]">{review.instructorName}</div>
               </div>
             </div>
           );
