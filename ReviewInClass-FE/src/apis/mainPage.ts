@@ -23,3 +23,12 @@ export const getPopularReviews = async (): Promise<ResponsePopularReviewDto> => 
 
   return data;
 };
+
+// 최신 리뷰
+export const getLatestReviews = async (page: number): Promise<ResponsePopularReviewDto> => {
+  const { data } = await axiosInstance.get("api/reviews/latest", {
+    params: { page: `${page}` },
+  });
+
+  return data;
+};
