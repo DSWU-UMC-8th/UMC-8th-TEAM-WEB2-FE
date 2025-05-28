@@ -14,7 +14,8 @@ import Loading from "../components/Loading";
 
 const Review = () => {
   const [searchParams] = useSearchParams();
-  const sortType = searchParams.get("sort") || "latest";
+  // const sortType = searchParams.get("sort") || "latest";
+  const [sortType, setSortType] = useState("latest");
   const [order, setOrder] = useState<"asc" | "desc">("desc");
   const [filters, setFilters] = useState<Filters>({
     category: "",
@@ -22,25 +23,32 @@ const Review = () => {
     period: "",
   });
   const [currentPage, setCurrentPage] = useState(1);
-  const reviewsPerPage = 5;
 
   const { search } = useSearch();
   const isSearchMode = typeof search === "string" && search.trim() !== "";
 
-const searchResult = useSearchList(currentPage);
-const reviewResult = useReviewList(sortType, filters, currentPage);
+  const searchResult = useSearchList(currentPage);
+  const reviewResult = useReviewList(sortType, filters, currentPage);
 
+  const {
+    data: reviews = [],
+    isLoading,
+    isError,
+    totalPages: _totalPages,
+  } = isSearchMode ? searchResult : reviewResult;
 
-const {
-  data: reviews = [],
-  isLoading,
-  isError,
-  totalPages,
-} = isSearchMode ? searchResult : reviewResult;
+  const totalPages = isSearchMode ? 1 : _totalPages;
 
-  if (isLoading) return <Loading />;
-  if (isError) return <div>에러 발생</div>;
-  if (!reviews.length && isSearchMode) return <NoResult />;
+  const reviewsPerPage = 5;
+
+  const safeTotalPages =
+    sortType === "latest" || sortType === "popular"
+      ? totalPages
+      : Math.ceil(reviews.length / reviewsPerPage);
+
+    if (isLoading) return <Loading />;
+    if (!reviews.length) return <NoResult />;
+    // if (isError) return <div>에러 발생</div>;
 
   const periodPriority: { [key: string]: number } = {
     "일주일 이내": 1,
@@ -51,38 +59,11 @@ const {
     "수강 미완료": 6,
   };
 
-  // 정렬
-  const sortedReviews = [...reviews].sort((a, b) => {
-    if (sortType === "latest") {
-      return order === "desc"
-        ? new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        : new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-    } else if (sortType === "popular") {
-      return order === "desc" ? b.likes - a.likes : a.likes - b.likes;
-    }
-    return 0;
-  });
+  const paginatedReviews =
+    isSearchMode || sortType === "filter"
+      ? reviews.slice((currentPage - 1) * reviewsPerPage, currentPage * reviewsPerPage)
+      : reviews;
 
-  // 필터링
-  const filteredReviews = sortedReviews.filter((review) => {
-    const matchCategory =
-      !filters.category || !review.category || review.category === filters.category;
-    const matchLevel =
-      !filters.level || !review.level || review.level === filters.level;
-    const reviewPeriodRank = periodPriority[review.studyPeriod] ?? Infinity;
-    const filterPeriodRank = periodPriority[filters.period] ?? Infinity;
-    const matchPeriod =
-      !filters.period || reviewPeriodRank <= filterPeriodRank;
-
-    return matchCategory && matchLevel && matchPeriod;
-  });
-
-  // const totalPages = Math.ceil(filteredReviews.length / reviewsPerPage);
-  // const paginatedReviews = filteredReviews.slice(
-  //   (currentPage - 1) * reviewsPerPage,
-  //   currentPage * reviewsPerPage
-  // );
-  const paginatedReviews = reviews;
 
   const toggleOrder = () => {
     setOrder((prev) => (prev === "desc" ? "asc" : "desc"));
@@ -99,7 +80,11 @@ const {
       )}
 
       <ReviewFilterBar
-        onSearch={setFilters}
+        onSearch={(newFilters) => {
+          setFilters(newFilters);        // 필터 상태 저장
+          setSortType("filter");         // 정렬 기준을 'filter'로 변경 (useReviewList에서 인식)
+          setCurrentPage(1);             // 새 검색이니까 페이지 1로 초기화
+        }}
         sortType={sortType}
         order={order}
         onToggleOrder={toggleOrder}
@@ -138,33 +123,36 @@ const {
           &lt;
         </button>
 
-        {Array.from({ length: totalPages }, (_, i) => i + 1).filter((page) => page <= totalPages).map((page) => (
-          <button
-            key={page}
-            onClick={() => setCurrentPage(page)}
-            className="px-3 py-1 rounded"
-            style={{
-              backgroundColor: "#ffffff",
-              border:
-                page === currentPage
-                  ? "1px solid #6FA235"
-                  : "1px solid #CAE3A5",
-              color: "#6FA235",
-              fontWeight: page === currentPage ? "bold" : "normal",
-            }}
-          >
-            {page}
-          </button>
+        {Array.from({ length: safeTotalPages }, (_, i) => i + 1)
+          .filter((page) => page <= safeTotalPages)
+          .map((page) => (
+            <button
+              key={page}
+              onClick={() => setCurrentPage(page)}
+              className="px-3 py-1 rounded"
+              style={{
+                backgroundColor: "#ffffff",
+                border:
+                  page === currentPage
+                    ? "1px solid #6FA235"
+                    : "1px solid #CAE3A5",
+                color: "#6FA235",
+                fontWeight: page === currentPage ? "bold" : "normal",
+                cursor: "pointer",
+              }}
+            >
+              {page}
+            </button>
         ))}
 
         <button
-          disabled={currentPage === totalPages}
-          onClick={() => {if (currentPage < totalPages) setCurrentPage(currentPage + 1);}}
+          disabled={currentPage === safeTotalPages}
+          onClick={() => {if (currentPage < safeTotalPages) setCurrentPage(currentPage + 1);}}
           className="px-3 py-1 rounded border"
           style={{
-            backgroundColor: currentPage === totalPages ? "#E9E9E9" : "#CAE3A5",
-            color: currentPage === totalPages ? "#B5B5B5" : "#6FA235",
-            cursor: currentPage === totalPages ? "not-allowed" : "pointer",
+            backgroundColor: currentPage === safeTotalPages ? "#E9E9E9" : "#CAE3A5",
+            color: currentPage === safeTotalPages ? "#B5B5B5" : "#6FA235",
+            cursor: currentPage === safeTotalPages ? "not-allowed" : "pointer",
           }}
         >
           &gt;
