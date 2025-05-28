@@ -6,6 +6,13 @@ import { postReview } from "../apis/createReview";
 import { useReviewForm } from "../hooks/useReviewForm";
 import { useModal } from "../hooks/useModal";
 
+// HTML 태그 제거 함수
+function stripHtml(html: string) {
+  const tmp = document.createElement('div');
+  tmp.innerHTML = html;
+  return tmp.textContent || tmp.innerText || '';
+}
+
 const CreateReview = () => {
   const {
     // ClassInfo
@@ -43,7 +50,8 @@ const CreateReview = () => {
   // 등록 버튼 클릭
   const handleSubmit = async () => {
     try {
-      const response = await postReview(getReviewRequest(), imageFile ?? undefined);
+      const plainContent = stripHtml(content);
+      const response = await postReview({ ...getReviewRequest(), content: plainContent }, imageFile ?? undefined);
       console.log('리뷰 등록 성공:', response);
       showSuccessModal();
     } catch (error) {

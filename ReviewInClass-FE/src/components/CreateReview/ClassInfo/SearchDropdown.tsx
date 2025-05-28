@@ -11,7 +11,7 @@ const SearchDropdown = ({ results = [], onSelect, isOpen, onManualInput }: Searc
     if (!isOpen) return null;
 
     return (
-        <div className="absolute w-[760px] mt-[15px] bg-white shadow-2xl rounded-[20px] z-50 py-[26px] pr-[10px]">
+        <div className="absolute w-[760px] bg-white shadow-2xl rounded-[20px] z-50 py-[26px] pr-[10px]">
             <div className="custom-scrollbar overflow-y-auto max-h-[450px] pl-[35px] pr-[20px]">
                 <ul className="w-full">
                     {Array.isArray(results) && results.map((lecture) => (
@@ -35,7 +35,7 @@ const SearchDropdown = ({ results = [], onSelect, isOpen, onManualInput }: Searc
                     <li className="px-4 py-2 flex justify-end">
                         <button
                             onClick={onManualInput}
-                            className="text-[17px] text-[#2B2B2B] underline mt-[5px]">
+                            className="text-[17px] text-[#2B2B2B] underline mt-[5px] cursor-pointer">
                             선택지에 원하는 강의가 없나요?
                         </button>
                     </li>

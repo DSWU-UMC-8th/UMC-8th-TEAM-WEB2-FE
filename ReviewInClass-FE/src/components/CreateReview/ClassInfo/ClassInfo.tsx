@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import palette from "../../../styles/theme"; 
 import ic_pic from "../../../assets/icon-pic-select.svg"
 import ic_search from "../../../assets/navbar/icon-navbar-search.svg"
@@ -38,6 +38,10 @@ const ClassInfo = ({
   imageFile,
   setImageFile,
 }: ClassInfoProps) => {
+    // 강의명 입력 임시 상태 (수동입력용)
+    const [pendingLectureName, setPendingLectureName] = useState("");
+    const [pendingInstructorName, setPendingInstructorName] = useState("");
+
     // 강의명 검색
     const {
         query,
@@ -54,7 +58,7 @@ const ClassInfo = ({
         type: 'lecture',
         onSelect: (lecture) => {
             setSelectedLecture(lecture);
-            setQuery(lecture.name);
+            setQuery(""); // 강의명 입력값 초기화
             setManualLecture({
                 name: lecture.name,
                 instructorName: lecture.instructor,
@@ -64,6 +68,7 @@ const ClassInfo = ({
             });
             setPlatformQuery(lecture.platform || "");
             setSelectedPlatform(lecture.platform ? { id: 0, name: lecture.platform } : null);
+            setPendingInstructorName(""); // 강사명 수동입력값도 초기화
         },
     });
 
@@ -151,7 +156,7 @@ const ClassInfo = ({
                     <SectionTitle title="필수 항목" isRequired />
                     
                     {/* 강의명 */}
-                    <div className="flex flex-col mb-[48px]">
+                    <div className="flex flex-col mb-[48px] relative">
                         <FieldLabel label="강의명" />
                         <div className="flex flex-col gap-[21px]">
                             <div className="flex gap-[25px]">
@@ -161,25 +166,34 @@ const ClassInfo = ({
                                             className="rounded-[55px]"
                                             leftIcon={<img src={ic_search} alt="검색아이콘" className="w-full h-full object-contain"/>}
                                             placeholder="강의명 (강의 상세 페이지의 강의를 토대로 자동 입력)"
-                                            value={query}
+                                            value={selectedLecture && !isManualInput ? "" : query}
                                             onChange={handleInputChange}
                                             onFocus={() => query && setIsOpen(true)}
                                         />
                                         <SearchButton onClick={handleSearchClick} />
                                     </>
                                 ) : (
-                                    <div className="flex flex-col  gap-[14px] w-[880px]">
+                                    <div className="relative w-[880px] flex flex-col gap-[14px]">
                                         <CustomInput
                                             className="w-[880px] text-[17px] px-[24px] py-[15px] rounded-[16px] border"
                                             style={{ borderColor: palette.gray.gray300 }}
                                             placeholder="강의명을 입력해 주세요."
-                                            value={manualLecture.name}
-                                            onChange={e => setManualLecture({ ...manualLecture, name: e.target.value })}
+                                            value={pendingLectureName}
+                                            onChange={e => {
+                                                if (e.target.value.length <= 50) {
+                                                    setPendingLectureName(e.target.value);
+                                                }
+                                            }}
+                                            onKeyDown={e => {
+                                                if (e.key === 'Enter' && pendingLectureName.trim()) {
+                                                    setManualLecture({ ...manualLecture, name: pendingLectureName });
+                                                    setPendingLectureName("");
+                                                }
+                                            }}
                                         />
-                                        
                                         <button
                                             type="button"
-                                            className="self-end text-[17px] text-[#2B2B2B] underline cursor-pointer"
+                                            className="text-[17px] text-[#2B2B2B] underline cursor-pointer absolute right-0 bottom-0 top-18"
                                             onClick={() => setIsManualInput(false)}
                                         >
                                             다시 검색하기
@@ -209,46 +223,68 @@ const ClassInfo = ({
                     <div className="mb-[48px]">
                         <FieldLabel label="강사명" />
                         <div className="relative w-[880px]">
-                            <CustomInput
-                                className="w-full text-[17px] px-[24px] py-[15px] border rounded-[16px] pr-[60px]"
-                                style={{ borderColor: palette.gray.gray300 }}
-                                placeholder="강사명을 입력해 주세요. (강의명 검색 시 자동 입력됩니다.)"
-                                value={isManualInput ? manualLecture.instructorName : (selectedLecture?.instructor || '')}
-                                maxLength={10}
-                                onChange={isManualInput ? (e => {
-                                    if (e.target.value.length <= 10) {
-                                        setManualLecture({ ...manualLecture, instructorName: e.target.value });
-                                    }
-                                }) : undefined}
-                                readOnly={!isManualInput}
-                            />
-                            {isManualInput && (
-                                <span
-                                    className="absolute right-5 top-1/2 -translate-y-1/2 text-[#6D6D6D] text-[15px] pointer-events-none"
-                                    style={{ fontFamily: 'inherit' }}
-                                >
-                                    {manualLecture.instructorName.length}/10
-                                </span>
-                            )}
+                          <CustomInput
+                              className="w-full text-[17px] px-[24px] py-[15px] border rounded-[16px] pr-[60px]"
+                              style={{ borderColor: palette.gray.gray300 }}
+                              placeholder="강사명을 입력해 주세요. (강의명 검색 시 자동 입력됩니다.)"
+                              value={isManualInput ? pendingInstructorName : ""}
+                              maxLength={10}
+                              onChange={isManualInput ? (e => {
+                                  if (e.target.value.length <= 10) {
+                                      setManualLecture({ ...manualLecture, instructorName: "" });
+                                      setPendingInstructorName(e.target.value);
+                                  }
+                              }) : undefined}
+                              onKeyDown={isManualInput ? (e => {
+                                  if (e.key === 'Enter' && pendingInstructorName.trim()) {
+                                      setManualLecture({ ...manualLecture, instructorName: pendingInstructorName });
+                                      setPendingInstructorName("");
+                                  }
+                              }) : undefined}
+                              readOnly={!isManualInput}
+                          />
+                          {/* 오른쪽 카운터 */}
+                          {isManualInput && !manualLecture.instructorName && (
+                            <span
+                              style={{
+                                position: 'absolute',
+                                right: '24px',
+                                top: '50%',
+                                transform: 'translateY(-50%)',
+                                color: '#6D6D6D',
+                                fontSize: '15px',
+                                fontFamily: 'inherit',
+                                pointerEvents: 'none',
+                              }}
+                            >
+                              {pendingInstructorName.length}/10
+                            </span>
+                          )}
                         </div>
+                        {/* input 아래에 태그뱃지 */}
                         {isManualInput
-                            ? manualLecture.instructorName && (
-                                <div className="flex gap-[5px] items-center justify-start mt-[10px]">
-                                    <TagBadge
-                                        label={manualLecture.instructorName}
-                                        onClear={() => setManualLecture({ ...manualLecture, instructorName: "" })}
-                                    />
-                                </div>
+                          ? manualLecture.instructorName && (
+                              <div className="flex gap-[5px] items-center justify-start mt-[10px]">
+                                <TagBadge
+                                  label={manualLecture.instructorName}
+                                  onClear={() => setManualLecture({ ...manualLecture, instructorName: "" })}
+                                />
+                              </div>
                             )
-                            : selectedLecture?.instructor && (
-                                <div className="flex gap-[5px] items-center justify-start mt-[10px]">
-                                    <TagBadge
-                                        label={selectedLecture.instructor}
-                                        onClear={handleClear}
-                                    />
-                                </div>
+                          : selectedLecture?.instructor && (
+                              <div className="flex gap-[5px] items-center justify-start mt-[10px]">
+                                <TagBadge
+                                  label={selectedLecture.instructor}
+                                  onClear={handleClear}
+                                />
+                              </div>
                             )
                         }
+                        <div className="flex justify-end items-center w-[880px] mt-[10px]">
+                            <span className="text-[16px] text-[#B5B5B5] shrink-0">
+                                (10자 이내)
+                            </span>
+                        </div>
                     </div>
                     
                     {/* 플랫폼 */}
@@ -259,7 +295,7 @@ const ClassInfo = ({
                                 className="rounded-[55px]"
                                 leftIcon={<img src={ic_search} alt="검색아이콘" className="w-full h-full object-contain"/>}
                                 placeholder="플랫폼을 검색해 주세요. (강의명 검색 시 자동 선택됩니다.)"
-                                value={platformQuery}
+                                value={selectedPlatform && !isManualInput ? "" : platformQuery}
                                 onChange={handlePlatformInputChange}
                                 onFocus={() => platformQuery && setIsPlatformOpen(true)}
                             />
@@ -281,8 +317,8 @@ const ClassInfo = ({
                             )}
                         </div>
                         {selectedPlatform && (
-                            <div className="flex gap-[15px] mt-[19px] w-full">
-                                <div className="flex gap-[5px] items-center justify-center">
+                        <div className="flex gap-[15px] mt-[19px] w-full">
+                            <div className="flex gap-[5px] items-center justify-center">
                                     <TagBadge label={selectedPlatform.name} onClear={handlePlatformClear} />
                                 </div>
                             </div>
