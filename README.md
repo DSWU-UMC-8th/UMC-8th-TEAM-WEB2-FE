@@ -1,13 +1,20 @@
-# UMC-8th-TEAM-WEB2-FE
+<img src="https://capsule-render.vercel.app/api?type=waving&color=268ECFCC&height=200&section=header&text=Review%20in%20Class&fontSize=40" style="width: 100%;" />
 
-> ## 인터넷 강의 리뷰&추천 서비스 💻✏️
->
-> 덕성여대 UMC 8기 미니 프로젝트
+## UMC-8th-TEAM-WEB2-FE
+: 덕성여대 UMC 8기 미니 프로젝트
+
+<br />
+
+## Review in Class 서비스 소개
+### 인터넷 강의 리뷰&추천 서비스 💻✏️
+: 솔직한 리뷰를 통해 강의를 선택할 수 있는 서비스입니다. 
+
+<div style="width: 100%; margin: 0 auto; display: flex; justify-content: space-between; align-items: flex-start;">
+  <img src="https://github.com/user-attachments/assets/ed7914f7-b4b2-48b4-b0eb-2542ce64941f"/>
+</div> 
 
 
-> 추후 수정 예정
-
-
+<br />
 
 ## ⚒️ 팀원 소개
 
@@ -40,7 +47,7 @@
 
 ### 📌 Git Flow
 - `main branch` : 배포 브랜치
-- `develop` branch` : 개발 브랜치, feature 브랜치가 merge됨
+- `develop branch` : 개발 브랜치, feature 브랜치가 merge됨
 - `feature branch` : 페이지/기능 브랜치
 
 ### 🌟 Commit Message Convention (gitmoji 사용)
@@ -63,8 +70,8 @@
 ### 🌳 Branch Convention
 - 이슈 생성 후 브랜치 생성
 - 형식: `브랜치종류/#이슈번호_상세기능`
-- 브랜치 종류 -> ex) `init`, `feat`, `fix`
-- ex) `feat/#1_mainPage`
+- 브랜치 종류 -> ex) `init`, `feature`, `fix`
+- ex) `feature/#1_mainPage`
 
 ### 📌 Flow
 - `develop 브랜치`에서 새로운 브랜치를 생성.
