@@ -16,7 +16,11 @@ interface RatingMap {
   [lectureId: number]: number;
 }
 
-const Banner = () => {
+interface BannerProps {
+  targetId?: number;
+}
+
+const Banner = ({ targetId }: BannerProps) => {
   const settings = {
     dots: true,
     infinite: true,
@@ -38,15 +42,30 @@ const Banner = () => {
       try {
         const data = await getAllLectures();
 
-        const shuffled = [...data.result].sort(() => Math.random() - 0.5).slice(0, 4);
-        setShuffledLectures(shuffled);
+        if (targetId) {
+          // 해당 강의 배너 + 랜덤 3개
+          const targetLectureId = data.result.find((lecture) => lecture.lectureId === targetId);
+          const others = data.result
+            .filter((lecture) => lecture.lectureId !== targetId)
+            .sort(() => Math.random() - 0.5)
+            .slice(0, 3);
+
+          if (targetLectureId) {
+            setShuffledLectures([targetLectureId, ...others]);
+          } else {
+            setShuffledLectures([...others]);
+          }
+        } else {
+          const shuffled = [...data.result].sort(() => Math.random() - 0.5).slice(0, 4);
+          setShuffledLectures(shuffled);
+        }
       } catch (error) {
         console.error("배너 데이터 오류", error);
       }
     };
 
     getBannerLectures();
-  }, []);
+  }, [targetId]);
 
   useEffect(() => {
     const getLectureRates = async () => {
