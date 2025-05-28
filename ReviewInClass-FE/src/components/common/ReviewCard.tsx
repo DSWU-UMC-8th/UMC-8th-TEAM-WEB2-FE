@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import palette from "../../styles/theme.ts";
 import logoIcon from "../../assets/icon-logo.svg";
 import thumbsUpColor from "../../assets/thumbs/icon-thumbs-color-up.svg";
@@ -6,19 +6,9 @@ import thumbsUp from "../../assets/thumbs/icon-thumbs-up.svg";
 import thumbsDown from "../../assets/thumbs/icon-thumbs-down.svg";
 import type { ReviewCardProps } from "../../types/review.ts";
 import Star from "./Star";
+import { useNavigate } from "react-router-dom";
 
-const ReviewCard = ({
-  rating,
-  createdAt,
-  studyPeriod,
-  likeCount,
-  content,
-  imageUrl,
-  profileImage,
-  category,
-  level,
-  teacher,
-}: ReviewCardProps) => {
+const ReviewCard = ({ rating, createdAt, studyPeriod, likeCount, content, imageUrl, profileImage, category, level, teacher, lectureId }: ReviewCardProps) => {
   const [likes, setLikes] = useState(likeCount);
 
   const handleLike = () => {
@@ -29,16 +19,18 @@ const ReviewCard = ({
     setLikes((prev) => Math.max(prev - 1, 0)); // 0 이하로 내려가지 않도록
   };
 
+  const navigate = useNavigate();
+
+  const handleClickReview = (lectureId: number) => {
+    navigate(`/review/${lectureId}`);
+  };
+
   return (
-    <div className="bg-white shadow-md rounded-md p-4 text-gray-900">
+    <div className="bg-white shadow-md rounded-md p-4 text-gray-900 cursor-pointer" onClick={() => handleClickReview(lectureId)}>
       {/* 상단 프로필 + 별점 + 시간 */}
       <div className="flex justify-between items-start text-sm mb-2">
         <div className="flex items-center gap-2">
-          <img
-            src={profileImage || logoIcon}
-            alt="프로필"
-            className="w-8 h-8 rounded-full object-cover"
-          />
+          <img src={profileImage || logoIcon} alt="프로필" className="w-8 h-8 rounded-full object-cover" />
           <div className="flex items-center gap-1 text-[14px]">
             <Star star={parseFloat(String(rating ?? "0"))} width={16} gap={4} />
           </div>
@@ -49,7 +41,7 @@ const ReviewCard = ({
       {/* 공부 기간 + 좋아요 */}
       <div className="flex gap-7 items-center ml-10 mt-1 mb-2 text-sm text-gray-700">
         <span>공부 기간: {studyPeriod}</span>
-        <div className="flex items-center gap-1" style={{color: palette.gray.gray900}}>
+        <div className="flex items-center gap-1" style={{ color: palette.gray.gray900 }}>
           <img src={thumbsUpColor} alt="좋아요 아이콘" className="w-4 h-4" />
           <span>{likes}</span>
         </div>
@@ -58,11 +50,7 @@ const ReviewCard = ({
       {/* 리뷰 이미지 (있을 경우) */}
       {imageUrl && (
         <div className="my-2">
-          <img
-            src={imageUrl}
-            alt="리뷰 이미지"
-            className="w-full h-40 object-cover rounded"
-          />
+          <img src={imageUrl} alt="리뷰 이미지" className="w-full h-40 object-cover rounded" />
         </div>
       )}
 
