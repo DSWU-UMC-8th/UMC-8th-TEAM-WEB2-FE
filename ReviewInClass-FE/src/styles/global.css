@@ -40,6 +40,14 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: "Inter";
+  src: url("/fonts/Inter_28pt-ExtraBold.ttf") format("ttf");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
 @layer base {
   html,
   body {
@@ -76,4 +84,18 @@
 .custom-scrollbar::-webkit-scrollbar-track {
   background: #F7F8F9;
   border-radius: 10px;
+}
+
+.create-review-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 17px 14px;
+  width: 148px;
+  height: 50px;
+  border-radius: 11.9px;
+  font-size: 22px;
+  font-weight: 500;
+  color: white;
+  cursor: pointer;
 }

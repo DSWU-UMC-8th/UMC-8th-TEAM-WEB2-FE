@@ -3,33 +3,27 @@ import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
 import "./Banner.css";
 import Star from "../Star";
+import type { Lectures } from "../../../types/mainLectures";
+import { useEffect, useState } from "react";
+import { getAllLectures, getLectureRating } from "../../../apis/mainPage";
 
 /**
  * 강의 배너를 나타내는 컴포넌트입니다.
- * 강의 내용이 담긴 배열을 넘겨 사용하면 됩니다.
- *
- * @param {array} lectures -- 강의 정보에 대한 배열
  *
  * * */
 
-interface Lecture {
-  id: number;
-  img: string;
-  title: string;
-  platform: string;
-  instructor: string;
-  tags: string[];
-  likes: number;
+interface RatingMap {
+  [lectureId: number]: number;
 }
 
 interface BannerProps {
-  lectures: Lecture[];
+  targetId?: number;
 }
 
-const Banner = ({ lectures }: BannerProps) => {
+const Banner = ({ targetId }: BannerProps) => {
   const settings = {
     dots: true,
-    intinite: true,
+    infinite: true,
     speed: 500,
     slidesToShow: 1,
     slidesToScroll: 1,
@@ -37,40 +31,97 @@ const Banner = ({ lectures }: BannerProps) => {
     autoplaySpeed: 3000,
   };
 
+  const tags = ["입문자용", "초급", "완벽 설명"];
+
+  const [ratings, setRatings] = useState<RatingMap>({});
+
+  const [shuffledLectures, setShuffledLectures] = useState<Lectures[]>([]);
+
+  useEffect(() => {
+    const getBannerLectures = async () => {
+      try {
+        const data = await getAllLectures();
+
+        if (targetId) {
+          // 해당 강의 배너 + 랜덤 3개
+          const targetLectureId = data.result.find((lecture) => lecture.lectureId === targetId);
+          const others = data.result
+            .filter((lecture) => lecture.lectureId !== targetId)
+            .sort(() => Math.random() - 0.5)
+            .slice(0, 3);
+
+          if (targetLectureId) {
+            setShuffledLectures([targetLectureId, ...others]);
+          } else {
+            setShuffledLectures([...others]);
+          }
+        } else {
+          const shuffled = [...data.result].sort(() => Math.random() - 0.5).slice(0, 4);
+          setShuffledLectures(shuffled);
+        }
+      } catch (error) {
+        console.error("배너 데이터 오류", error);
+      }
+    };
+
+    getBannerLectures();
+  }, [targetId]);
+
+  useEffect(() => {
+    const getLectureRates = async () => {
+      try {
+        const lectureIds = shuffledLectures.map((lecture) => {
+          return getLectureRating(lecture.lectureId).then((res) => ({
+            lectureId: lecture.lectureId,
+            rating: res.result.averageRating,
+          }));
+        });
+
+        const results = await Promise.all(lectureIds);
+
+        const lectureRatings: RatingMap = {};
+        results.forEach(({ lectureId, rating }) => {
+          lectureRatings[lectureId] = rating;
+        });
+
+        setRatings(lectureRatings);
+      } catch (error) {
+        console.error("배너 별점 오류", error);
+      }
+    };
+    getLectureRates();
+  }, [shuffledLectures]);
+
   return (
     <Slider {...settings} className="w-full">
-      {lectures.map((lecture, idx) => (
-        <div key={lecture.id} className="pl-[78px] pr-[78px]">
+      {shuffledLectures.map((lecture, idx) => (
+        <div key={idx} className="pl-[78px] pr-[78px]">
           <div className="w-full h-[464px] rounded-[25.7px] overflow-hidden relative">
-            <img src={lecture.img} className="w-full h-full object-cover object-center" />
+            <img src={lecture.lecture?.imgUrls?.[0] ?? ""} className="w-full h-full object-cover object-center" />
             <div
               className="absolute inset-0 bg-black"
               style={{
-                background:
-                  "linear-gradient(180deg, rgba(0, 0, 0, 0.175) 0%, rgba(0, 0, 0, 0.3325) 43.75%, rgba(0, 0, 0, 0.35) 100%)",
+                background: "linear-gradient(180deg, rgba(0, 0, 0, 0.175) 0%, rgba(0, 0, 0, 0.3325) 43.75%, rgba(0, 0, 0, 0.35) 100%)",
               }}
             ></div>
 
             <div className="absolute bottom-10 left-15 flex flex-col gap-[15px]">
-              <p className="font-semibold text-[45px] leading-[145%] tracking-0 text-white">{lecture.title}</p>
+              <p className="font-semibold text-[45px] leading-[145%] tracking-0 text-white">{lecture.lecture?.name}</p>
               <div className="flex items-center gap-[19.57px]">
-                <p className="font-medium text-[30px] leading-[100%] tracking-0 text-white">{lecture.platform}</p>
+                <p className="font-medium text-[30px] leading-[100%] tracking-0 text-white">{lecture.lecture?.platformName}</p>
                 <div className="w-[1.96px] h-[26px] bg-white"></div>
-                <p className="font-medium text-[30px] leading-[100%] tracking-0 text-white">{lecture.instructor}</p>
+                <p className="font-medium text-[30px] leading-[100%] tracking-0 text-white">{lecture.lecture?.instructorName}</p>
               </div>
 
               <div className="flex gap-[12.73px]">
-                {lecture.tags.map((tag, idx) => (
-                  <div
-                    key={idx}
-                    className="pt-[2.55px] pr-[5.09px] pb-[2.55px] pl-[5.09px] bg-white/30 rounded-[5.09px] text-white"
-                  >
+                {tags.map((tag, idx) => (
+                  <div key={idx} className="pt-[2.55px] pr-[5.09px] pb-[2.55px] pl-[5.09px] bg-white/30 rounded-[5.09px] text-white">
                     # {tag}
                   </div>
                 ))}
               </div>
 
-              <Star star={lecture.likes} width={31.62} gap={11} />
+              <Star star={ratings[lecture.lectureId] ?? 0} width={31.62} gap={11} />
             </div>
 
             <div className="absolute bottom-5 right-5">
