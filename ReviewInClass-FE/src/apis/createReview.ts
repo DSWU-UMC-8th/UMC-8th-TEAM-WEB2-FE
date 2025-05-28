@@ -26,7 +26,7 @@ export const postReview = async (body: ReviewRequest, file?: File) => {
 
     // 이미지 파일이 있는 경우 추가
     if (file) {
-        formData.append("imgUrls", file);
+        formData.append("image", file);
     }
 
     const { data } = await axiosInstance.post('/api/reviews', formData, {

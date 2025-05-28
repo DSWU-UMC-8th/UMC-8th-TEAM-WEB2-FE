@@ -208,27 +208,47 @@ const ClassInfo = ({
                     {/* 강사명 */}
                     <div className="mb-[48px]">
                         <FieldLabel label="강사명" />
-                        <CustomInput
-                            className="w-[880px] text-[17px] px-[24px] py-[15px] border rounded-[16px]"
-                            style={{ borderColor: palette.gray.gray300 }}
-                            placeholder="강사명을 입력해 주세요. (강의명 검색 시 자동 입력됩니다.)"
-                            value={isManualInput ? manualLecture.instructorName : (selectedLecture?.instructor || '')}
-                            onChange={isManualInput ? (e => setManualLecture({ ...manualLecture, instructorName: e.target.value })) : undefined}
-                            readOnly={!isManualInput}
-                        />
-                        <div className="flex items-center w-[880px] mt-[10px]">
-                            {(selectedLecture?.instructor && !isManualInput) && (
-                                <div className="flex gap-[15px] mt-[19px] w-full">
-                                    <div className="flex gap-[5px] items-center justify-center">
-                                        <TagBadge label={selectedLecture.instructor} onClear={handleClear} />
-                                    </div>
-                                </div>
+                        <div className="relative w-[880px]">
+                            <CustomInput
+                                className="w-full text-[17px] px-[24px] py-[15px] border rounded-[16px] pr-[60px]"
+                                style={{ borderColor: palette.gray.gray300 }}
+                                placeholder="강사명을 입력해 주세요. (강의명 검색 시 자동 입력됩니다.)"
+                                value={isManualInput ? manualLecture.instructorName : (selectedLecture?.instructor || '')}
+                                maxLength={10}
+                                onChange={isManualInput ? (e => {
+                                    if (e.target.value.length <= 10) {
+                                        setManualLecture({ ...manualLecture, instructorName: e.target.value });
+                                    }
+                                }) : undefined}
+                                readOnly={!isManualInput}
+                            />
+                            {isManualInput && (
+                                <span
+                                    className="absolute right-5 top-1/2 -translate-y-1/2 text-[#6D6D6D] text-[15px] pointer-events-none"
+                                    style={{ fontFamily: 'inherit' }}
+                                >
+                                    {manualLecture.instructorName.length}/10
+                                </span>
                             )}
-                            <div className="flex-1" />
-                            <span className="text-[15px] shrink-0" style={{ color: palette.gray.gray700 }}>
-                                (10자 이내)
-                            </span>
                         </div>
+                        {isManualInput
+                            ? manualLecture.instructorName && (
+                                <div className="flex gap-[5px] items-center justify-start mt-[10px]">
+                                    <TagBadge
+                                        label={manualLecture.instructorName}
+                                        onClear={() => setManualLecture({ ...manualLecture, instructorName: "" })}
+                                    />
+                                </div>
+                            )
+                            : selectedLecture?.instructor && (
+                                <div className="flex gap-[5px] items-center justify-start mt-[10px]">
+                                    <TagBadge
+                                        label={selectedLecture.instructor}
+                                        onClear={handleClear}
+                                    />
+                                </div>
+                            )
+                        }
                     </div>
                     
                     {/* 플랫폼 */}
@@ -272,7 +292,7 @@ const ClassInfo = ({
 
                 {/* 선택 항목 */}
                 <section className="flex flex-col mt-[82px]">
-                    <SectionTitle title="선택 항목" />
+                    <SectionTitle title="선택 항목" isRequired/>
                     <FieldLabel label="강의 사진 등록하기" className="mb-[39px]" />
                     <ImageUploadBox 
                         defaultIcon={ic_pic} 

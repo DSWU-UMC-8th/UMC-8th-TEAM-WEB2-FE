@@ -8,7 +8,7 @@ interface SectionTitleProps {
 
 const SectionTitle = ({ title, isRequired = false }: SectionTitleProps) => {
     return (
-        <div className="flex items-center gap-2 text-center mb-[36px]"
+        <div className="flex font-['Inter'] items-center gap-2 text-center mb-[36px]"
         style={{ color: palette.gray.gray900 }}>
             {isRequired && (
                 <span className="size-[35px]">
