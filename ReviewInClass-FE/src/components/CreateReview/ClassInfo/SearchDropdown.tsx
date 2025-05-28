@@ -7,14 +7,14 @@ interface SearchDropdownProps {
     onManualInput: () => void;
 }
 
-const SearchDropdown = ({ results, onSelect, isOpen, onManualInput }: SearchDropdownProps) => {
+const SearchDropdown = ({ results = [], onSelect, isOpen, onManualInput }: SearchDropdownProps) => {
     if (!isOpen) return null;
 
     return (
         <div className="absolute w-[760px] mt-[15px] bg-white shadow-2xl rounded-[20px] z-50 py-[26px] pr-[10px]">
             <div className="custom-scrollbar overflow-y-auto max-h-[450px] pl-[35px] pr-[20px]">
                 <ul className="w-full">
-                    {results.map((lecture) => (
+                    {Array.isArray(results) && results.map((lecture) => (
                         <li
                             key={lecture.id}
                             className="py-2 hover:bg-gray-100 cursor-pointer"

@@ -1,38 +1,36 @@
 import { useState, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
-interface SearchResponse<T> {
-  result: {
-    lectures?: T[];
-    platforms?: T[];
-  };
+// 리뷰 등록 페이지의 검색
+interface ApiResponse<T> {
+  isSuccess: boolean;
+  code: string;
+  message: string;
+  result: T[];
 }
 
 interface UseSearchProps<T> {
-  searchFn: (query: string) => Promise<SearchResponse<T>>;
+  searchFn: (query: string) => Promise<ApiResponse<T>>;
   debounceTime?: number;
   onSelect?: (item: T) => void;
+  type: 'lecture' | 'platform';
 }
 
-export const useSearch = <T>({ searchFn, debounceTime = 500, onSelect }: UseSearchProps<T>) => {
+export const useSearch = <T>({ searchFn, debounceTime = 500, onSelect, type }: UseSearchProps<T>) => {
   const [query, setQuery] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const { data: searchResults, refetch: searchQuery } = useQuery({
-    queryKey: ['search', query],
+    queryKey: ['search', query, type],
     queryFn: async () => {
-      if (!query) return { result: { lectures: [], platforms: [] } };
+      if (!query) return { isSuccess: true, code: '', message: '', result: [] };
       try {
         const data = await searchFn(query);
-        return {
-          result: {
-            lectures: Array.isArray(data.result.lectures) ? data.result.lectures : [],
-            platforms: Array.isArray(data.result.platforms) ? data.result.platforms : []
-          }
-        };
-      } catch {
-        return { result: { lectures: [], platforms: [] } };
+        return data;
+      } catch (error) {
+        console.error(`[${type}] Search error:`, error);
+        return { isSuccess: false, code: '', message: '', result: [] };
       }
     },
     enabled: false,
@@ -60,6 +58,7 @@ export const useSearch = <T>({ searchFn, debounceTime = 500, onSelect }: UseSear
   };
 
   const handleSelect = (item: T) => {
+    console.log(`[${type}] Selected item:`, item);
     if (onSelect) onSelect(item);
     setIsOpen(false);
   };
@@ -69,7 +68,7 @@ export const useSearch = <T>({ searchFn, debounceTime = 500, onSelect }: UseSear
     setQuery,
     isOpen,
     setIsOpen,
-    searchResults: searchResults?.result.lectures || searchResults?.result.platforms || [],
+    searchResults: searchResults?.result || [],
     handleInputChange,
     handleSearchClick,
     handleSelect,

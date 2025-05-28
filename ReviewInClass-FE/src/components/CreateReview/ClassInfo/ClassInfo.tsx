@@ -51,6 +51,7 @@ const ClassInfo = ({
     } = useSearch<Lecture>({
         searchFn: searchLectures,
         debounceTime: 500,
+        type: 'lecture',
         onSelect: (lecture) => {
             setSelectedLecture(lecture);
             setQuery(lecture.name);
@@ -79,6 +80,7 @@ const ClassInfo = ({
     } = useSearch<{ id: number; name: string }>({
         searchFn: searchPlatforms,
         debounceTime: 300,
+        type: 'platform',
         onSelect: (platform) => {
             setSelectedPlatform(platform);
             setPlatformQuery(platform.name);
