@@ -35,6 +35,7 @@ const {
   data: reviews = [],
   isLoading,
   isError,
+  totalPages,
 } = isSearchMode ? searchResult : reviewResult;
 
   if (isLoading) return <Loading />;
@@ -65,20 +66,23 @@ const {
   // 필터링
   const filteredReviews = sortedReviews.filter((review) => {
     const matchCategory =
-      !filters.category || review.category === filters.category;
-    const matchLevel = !filters.level || review.level === filters.level;
+      !filters.category || !review.category || review.category === filters.category;
+    const matchLevel =
+      !filters.level || !review.level || review.level === filters.level;
     const reviewPeriodRank = periodPriority[review.studyPeriod] ?? Infinity;
     const filterPeriodRank = periodPriority[filters.period] ?? Infinity;
     const matchPeriod =
       !filters.period || reviewPeriodRank <= filterPeriodRank;
+
     return matchCategory && matchLevel && matchPeriod;
   });
 
-  const totalPages = Math.ceil(filteredReviews.length / reviewsPerPage);
-  const paginatedReviews = filteredReviews.slice(
-    (currentPage - 1) * reviewsPerPage,
-    currentPage * reviewsPerPage
-  );
+  // const totalPages = Math.ceil(filteredReviews.length / reviewsPerPage);
+  // const paginatedReviews = filteredReviews.slice(
+  //   (currentPage - 1) * reviewsPerPage,
+  //   currentPage * reviewsPerPage
+  // );
+  const paginatedReviews = reviews;
 
   const toggleOrder = () => {
     setOrder((prev) => (prev === "desc" ? "asc" : "desc"));
@@ -103,18 +107,18 @@ const {
 
       <div className="space-y-4">
         {paginatedReviews.map((review) => (
-          <ReviewCard
+        <ReviewCard
           key={review.reviewId}
           rating={review.rating}
-          createdAt={review.createdAt || "날짜 없음"}
-          studyPeriod={review.studyPeriod || "기간 정보 없음"}
-          likeCount={review.likes}
-          content={review.content}
-          imageUrl={review.imageUrl}
-          profileImage={review.profileImage}
-          category={review.category || "카테고리 없음"}
-          level={review.level || "레벨 없음"}
-          teacher={review.instructorName}
+          createdAt={review.createdAt ?? "날짜 없음"}
+          studyPeriod={review.studyPeriod ?? "기간 정보 없음"}
+          likeCount={review.likes ?? 0}
+          content={review.content ?? "내용 없음"}
+          imageUrl={review.imageUrl ?? ""}
+          profileImage={review.profileImage ?? ""}
+          category={review.category ?? "카테고리 없음"}
+          level={review.level ?? "레벨 없음"}
+          teacher={review.instructorName ?? "강사 정보 없음"}
         />
         ))}
       </div>
@@ -123,7 +127,7 @@ const {
       <div className="flex justify-center mt-8 gap-2">
         <button
           disabled={currentPage === 1}
-          onClick={() => setCurrentPage((prev) => prev - 1)}
+          onClick={() => {if (currentPage > 1) setCurrentPage(currentPage - 1);}}
           className="px-3 py-1 rounded border"
           style={{
             backgroundColor: currentPage === 1 ? "#E9E9E9" : "#CAE3A5",
@@ -134,7 +138,7 @@ const {
           &lt;
         </button>
 
-        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+        {Array.from({ length: totalPages }, (_, i) => i + 1).filter((page) => page <= totalPages).map((page) => (
           <button
             key={page}
             onClick={() => setCurrentPage(page)}
@@ -155,7 +159,7 @@ const {
 
         <button
           disabled={currentPage === totalPages}
-          onClick={() => setCurrentPage((prev) => prev + 1)}
+          onClick={() => {if (currentPage < totalPages) setCurrentPage(currentPage + 1);}}
           className="px-3 py-1 rounded border"
           style={{
             backgroundColor: currentPage === totalPages ? "#E9E9E9" : "#CAE3A5",
