@@ -1,62 +1,123 @@
 import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import Banner from "../components/common/Banner/Banner";
 import LectureReviewFilterBar, {
   type Filters,
 } from "../components/LectureReviewFilterBar";
-import { LECTURE } from "../data/banner";
-import { dummyReviews } from "../data/dummyReviews";
 import ReviewCard from "../components/common/ReviewCard";
 import RatingSummary from "../components/RatingSummary";
+import type { Rates, ResponseLectureRatingDto } from "../types/mainLectures";
+import type { Review } from "../types/detailPage";
+import { getLectureRating } from "../apis/mainPage";
+import { getLectureReviews } from "../apis/detailPage";
+import palette from "../styles/theme";
 
 const Detail = () => {
+  const { id } = useParams<{ id: string }>();
+  const lectureId = Number(id);
+
   const [filters, setFilters] = useState<Filters>({
     sort: "latest",
     ratingRange: null,
   });
-  const [filteredReviews, setFilteredReviews] = useState(dummyReviews);
+
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [totalReviews, setTotalReviews] = useState(0);
+  const [totalPage, setTotalPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(0);
+
+  const [ratingData, setRatingData] = useState<Rates | null>(null);
 
   const handleSearch = (newFilters: Filters) => {
-    const sort = newFilters.sort || "latest";
-    const ratingRange = newFilters.ratingRange;
-    setFilters({ sort, ratingRange });
+    setCurrentPage(0); // 새 필터 적용 시 첫 페이지로 초기화
+    setFilters({
+      sort: newFilters.sort || "latest",
+      ratingRange: newFilters.ratingRange,
+    });
   };
 
+  // 평점 정보 가져오기
   useEffect(() => {
-    let filtered = [...dummyReviews];
+    if (lectureId) {
+      const fetchRating = async () => {
+        try {
+          const res: ResponseLectureRatingDto = await getLectureRating(
+            lectureId
+          );
+          if (res.isSuccess && res.result) {
+            setRatingData(res.result);
+          }
+        } catch (error) {
+          console.error("평점 정보 로딩 실패:", error);
+        }
+      };
 
-    if (filters.ratingRange !== null) {
-      const [min, max] = filters.ratingRange;
-      filtered = filtered.filter((r) => {
-        const rating = Math.floor(Number(r.rating));
-        return rating >= min && rating <= max;
-      });
+      fetchRating();
     }
+  }, [lectureId]);
 
-    if (filters.sort === "latest") {
-      filtered.sort(
-        (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      );
-    } else if (filters.sort === "recommend") {
-      filtered.sort((a, b) => b.likeCount - a.likeCount);
+  // 리뷰 목록 가져오기
+  useEffect(() => {
+    if (!lectureId) return;
+
+    const fetchReviews = async () => {
+      try {
+        const { sort, ratingRange } = filters;
+        const res = await getLectureReviews(lectureId, {
+          sort: sort === "latest" ? "createdAt" : "recommend",
+          ratingMin: ratingRange?.[0],
+          ratingMax: ratingRange?.[1],
+          page: currentPage,
+        });
+
+        if (res.isSuccess) {
+          setReviews(res.result.reviews);
+          setTotalReviews(res.result.totalMatchingReviews);
+          setTotalPage(res.result.totalPage);
+        }
+      } catch (error) {
+        console.error("리뷰 목록 로딩 실패:", error);
+      }
+    };
+
+    fetchReviews();
+  }, [filters, lectureId, currentPage]);
+
+  // 페이지 이동 핸들러
+  const handlePageClick = (page: number) => {
+    if (page >= 0 && page < totalPage) {
+      setCurrentPage(page);
     }
-
-    setFilteredReviews(filtered);
-  }, [filters]);
+  };
 
   return (
     <div>
-      <Banner lectures={LECTURE.slice(0, 4)} />
+      <Banner />
       <div className="max-w-[995px] mx-auto mt-[137px]">
         <RatingSummary
-          average={4.25}
-          totalReviews={25}
+          average={ratingData?.averageRating ?? 0}
+          totalReviews={ratingData?.reviewCount ?? 0}
           distribution={[
-            { label: "아주 좋아요", count: 23 },
-            { label: "맘에 들어요", count: 2 },
-            { label: "보통이에요", count: 0 },
-            { label: "그냥 그래요", count: 0 },
-            { label: "별로예요", count: 0 },
+            {
+              label: "아주 좋아요",
+              count: ratingData?.ratingDistribution["5"] ?? 0,
+            },
+            {
+              label: "맘에 들어요",
+              count: ratingData?.ratingDistribution["4"] ?? 0,
+            },
+            {
+              label: "보통이에요",
+              count: ratingData?.ratingDistribution["3"] ?? 0,
+            },
+            {
+              label: "그냥 그래요",
+              count: ratingData?.ratingDistribution["2"] ?? 0,
+            },
+            {
+              label: "별로예요",
+              count: ratingData?.ratingDistribution["1"] ?? 0,
+            },
           ]}
         />
       </div>
@@ -64,16 +125,76 @@ const Detail = () => {
       <div className="px-8 py-6">
         <LectureReviewFilterBar
           onSearch={handleSearch}
-          resultCount={filteredReviews.length}
+          resultCount={totalReviews}
         />
+
         <div className="space-y-4 mt-6">
-          {filteredReviews.length > 0 ? (
-            filteredReviews.map((review) => (
-              <ReviewCard key={review.id} {...review} />
+          {reviews.length > 0 ? (
+            reviews.map((review) => (
+              <ReviewCard
+                key={review.reviewId}
+                rating={review.rating.toString()}
+                createdAt={review.createdAt}
+                studyPeriod={review.period}
+                likeCount={review.likes}
+                content={review.content}
+                imageUrl={review.imageUrl}
+                profileImage={null}
+                category={undefined}
+                level={undefined}
+                teacher={undefined}
+              />
             ))
           ) : (
             <p>조건에 맞는 리뷰가 없습니다</p>
           )}
+        </div>
+
+        <div className="flex justify-center mt-8 space-x-2">
+          <button
+            onClick={() => handlePageClick(currentPage - 1)}
+            disabled={currentPage === 0}
+            className="px-3 py-1 rounded disabled:opacity-30"
+            style={{
+              color: palette.primary.primaryDark,
+              backgroundColor: palette.primary.primaryLight,
+            }}
+          >
+            {"<"}
+          </button>
+          {Array.from({ length: totalPage }).map((_, i) => (
+            <button
+              key={i}
+              onClick={() => handlePageClick(i)}
+              className={`px-3 py-1 rounded`}
+              style={{
+                borderColor:
+                  i === currentPage
+                    ? palette.primary.primaryDark
+                    : palette.primary.primary,
+                color:
+                  i === currentPage
+                    ? palette.primary.primaryDark
+                    : palette.gray.gray500,
+                borderWidth: "2px",
+                fontWeight: i === currentPage ? "bold" : "normal",
+                backgroundColor: "#ffffff",
+              }}
+            >
+              {i + 1}
+            </button>
+          ))}
+          <button
+            onClick={() => handlePageClick(currentPage + 1)}
+            disabled={currentPage >= totalPage - 1}
+            className="px-3 py-1 rounded disabled:opacity-30"
+            style={{
+              color: palette.primary.primaryDark,
+              backgroundColor: palette.primary.primaryLight,
+            }}
+          >
+            {">"}
+          </button>
         </div>
       </div>
     </div>
