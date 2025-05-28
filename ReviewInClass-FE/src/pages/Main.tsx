@@ -7,12 +7,12 @@ import palette from "../styles/theme";
 import ReviewCard from "../components/common/ReviewCard";
 import { useEffect, useState } from "react";
 import { getLatestReviews, getPopularReviews } from "../apis/mainPage";
-import type { Content } from "../types/mainLectures";
+import type { Content, LatestContent } from "../types/mainLectures";
 
 const Main = () => {
   const navigate = useNavigate();
   const [popularReviews, setPopularRevies] = useState<Content[]>([]);
-  const [latestReviews, setLatestReviews] = useState<Content[]>([]);
+  const [latestReviews, setLatestReviews] = useState<LatestContent[]>([]);
 
   const scrollToTop = () => {
     window.scrollTo({
@@ -36,7 +36,6 @@ const Main = () => {
       try {
         const reviewData = await getPopularReviews();
         setPopularRevies(reviewData.result.content);
-        console.log(reviewData.result.content);
 
         const latestReviewData = await getLatestReviews(0);
         setLatestReviews(latestReviewData.result.content);
