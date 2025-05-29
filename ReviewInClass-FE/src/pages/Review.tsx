@@ -34,7 +34,8 @@ const Review = () => {
   const { search } = useSearch();
   const isSearchMode = typeof search === "string" && search.trim() !== "";
 
-  const searchResult = useSearchList(currentPage);
+  const searchResult = useSearchList();
+
   const reviewResult = useReviewList(sortType, filters, currentPage, order);
 
   const {
@@ -68,7 +69,7 @@ const Review = () => {
 
   const paginatedReviews =
     isSearchMode || sortType === "filter"
-      ? reviews.slice((currentPage - 1) * reviewsPerPage, currentPage * reviewsPerPage)
+      ? reviews.slice(currentPage * reviewsPerPage, (currentPage + 1) * reviewsPerPage)
       : reviews;
 
   const toggleOrder = () => {
@@ -89,7 +90,7 @@ const Review = () => {
         onSearch={(newFilters) => {
           setFilters(newFilters); // 필터 상태 저장
           setSortType("filter"); // 정렬 기준을 'filter'로 변경 (useReviewList에서 인식)
-          setCurrentPage(1); // 새 검색이니까 페이지 1로 초기화
+          setCurrentPage(0); // 새 검색이니까 페이지 0으로 초기화
         }}
         sortType={sortType}
         order={order}
@@ -122,15 +123,15 @@ const Review = () => {
       {/* Pagination */}
       <div className="flex justify-center mt-8 gap-2">
         <button
-          disabled={currentPage === 1}
+          disabled={currentPage === 0}
           onClick={() => {
-            if (currentPage > 1) setCurrentPage(currentPage - 1);
+            if (currentPage > 0) setCurrentPage(currentPage - 1);
           }}
           className="px-3 py-1 rounded border"
           style={{
-            backgroundColor: currentPage === 1 ? "#E9E9E9" : "#CAE3A5",
-            color: currentPage === 1 ? "#B5B5B5" : "#6FA235",
-            cursor: currentPage === 1 ? "not-allowed" : "pointer",
+            backgroundColor: currentPage === 0 ? "#E9E9E9" : "#CAE3A5",
+            color: currentPage === 0 ? "#B5B5B5" : "#6FA235",
+            cursor: currentPage === 0 ? "not-allowed" : "pointer",
           }}
         >
           &lt;
@@ -141,13 +142,14 @@ const Review = () => {
           .map((page) => (
             <button
               key={page}
-              onClick={() => setCurrentPage(page)}
+              onClick={() => setCurrentPage(page - 1)}
               className="px-3 py-1 rounded"
               style={{
                 backgroundColor: "#ffffff",
-                border: page === currentPage ? "1px solid #6FA235" : "1px solid #CAE3A5",
+                border:
+                  page - 1 === currentPage ? "1px solid #6FA235" : "1px solid #CAE3A5",
                 color: "#6FA235",
-                fontWeight: page === currentPage ? "bold" : "normal",
+                fontWeight: page - 1 === currentPage ? "bold" : "normal",
                 cursor: "pointer",
               }}
             >
@@ -156,15 +158,15 @@ const Review = () => {
           ))}
 
         <button
-          disabled={currentPage === safeTotalPages}
+          disabled={currentPage === safeTotalPages - 1}
           onClick={() => {
-            if (currentPage < safeTotalPages) setCurrentPage(currentPage + 1);
+            if (currentPage < safeTotalPages - 1) setCurrentPage(currentPage + 1);
           }}
           className="px-3 py-1 rounded border"
           style={{
-            backgroundColor: currentPage === safeTotalPages ? "#E9E9E9" : "#CAE3A5",
-            color: currentPage === safeTotalPages ? "#B5B5B5" : "#6FA235",
-            cursor: currentPage === safeTotalPages ? "not-allowed" : "pointer",
+            backgroundColor: currentPage === safeTotalPages - 1 ? "#E9E9E9" : "#CAE3A5",
+            color: currentPage === safeTotalPages - 1 ? "#B5B5B5" : "#6FA235",
+            cursor: currentPage === safeTotalPages - 1 ? "not-allowed" : "pointer",
           }}
         >
           &gt;
